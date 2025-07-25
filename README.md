@@ -1,0 +1,1 @@
+This is our folder structure as per now.Edit or change the srtructure when needed.
