@@ -1,5 +1,5 @@
 package model;
 
-public class Item {
+public class Review {
     
 }
