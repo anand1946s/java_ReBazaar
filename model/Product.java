@@ -8,7 +8,7 @@ public class Product {
     private String category;
     private String condition;
     private int sellerId;
-    private Date postedDate;
+    
     
 }
 
