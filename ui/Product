@@ -1,0 +1,89 @@
+import java.util.Scanner;
+
+class Product {
+    private String name;
+    private double price;
+    private int totalStars;     // sum of all ratings
+    private int reviewCount;    // number of reviews
+
+    // Constructor
+    public Product(String name, double price) {
+        this.name = name;
+        this.price = price;
+        this.totalStars = 0;
+        this.reviewCount = 0;
+    }
+
+    // Add a new review
+    public void addReview(int stars) {
+        if (stars >= 1 && stars <= 5) {
+            totalStars += stars;
+            reviewCount++;
+            System.out.println("Thank you for your review!");
+        } else {
+            System.out.println("Invalid rating! Please enter 1 to 5 stars.");
+        }
+    }
+
+    // Calculate average rating
+    public double getAverageRating() {
+        if (reviewCount == 0) return 0;
+        return (double) totalStars / reviewCount;
+    }
+
+    // Show stars in ★
+    private String getStarString() {
+        int avgStars = (int) Math.round(getAverageRating());
+        String stars = "";
+        for (int i = 0; i < avgStars; i++) {
+            stars += "★";
+        }
+        return stars;
+    }
+
+    @Override
+    public String toString() {
+        return "Product: " + name + 
+               "\nPrice: ₹" + price +
+               "\nReviews: " + reviewCount +
+               "\nAverage Rating: " + 
+               (reviewCount == 0 ? "No reviews yet" 
+                                 : String.format("%.1f %s", getAverageRating(), getStarString()));
+    }
+}
+
+public class ProductReviewSystem {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        Product p1 = new Product("Wireless Mouse", 499.0);
+
+        int choice;
+        do {
+            System.out.println("\n--- Product Review System ---");
+            System.out.println("1. View Product Details");
+            System.out.println("2. Add Review");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.println("\n" + p1);
+                    break;
+                case 2:
+                    System.out.print("Enter rating (1–5 stars): ");
+                    int stars = sc.nextInt();
+                    p1.addReview(stars);
+                    break;
+                case 3:
+                    System.out.println("Thank you! Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice, try again.");
+            }
+        } while (choice != 3);
+
+        sc.close();
+    }
+}
