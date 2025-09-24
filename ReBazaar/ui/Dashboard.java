@@ -1,9 +1,5 @@
 package ui;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -12,6 +8,10 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class Dashboard extends JFrame {
 
@@ -154,19 +154,27 @@ public class Dashboard extends JFrame {
 
     private void handleNavigation(String item) {
         switch (item) {
-            case "Home":
-                displayCategory("Furnitures");
-                break;
-            case "Logout":
-                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Logout", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    new LoginPage().setVisible(true);
-                    dispose();
-                }
-                break;
-            default:
-                JOptionPane.showMessageDialog(this, "Navigating to " + item);
-                break;
+        case "Home":
+            displayCategory("Furnitures");
+            break;
+
+        // MODIFIED PART STARTS HERE
+        case "Settings":
+            // This will open your new UserProfile frame without closing the dashboard
+            SwingUtilities.invokeLater(() -> new UserProfile(loggedInUser).setVisible(true));
+            break;
+        // MODIFIED PART ENDS HERE
+
+        case "Logout":
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Logout", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                new LoginPage().setVisible(true); // Ensure LoginPage.java is in the ui package
+                dispose();
+            }
+            break;
+        default:
+            JOptionPane.showMessageDialog(this, "Navigating to " + item);
+            break;
         }
     }
 
@@ -360,3 +368,4 @@ public class Dashboard extends JFrame {
         SwingUtilities.invokeLater(() -> new Dashboard("GuestUser").setVisible(true));
     }
 }
+
