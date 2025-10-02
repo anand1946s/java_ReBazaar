@@ -3,6 +3,9 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
 import database.ItemDAO;
 import model.Product;
 
@@ -13,7 +16,7 @@ public class PostProduct extends JDialog {
 		super(owner, "Post Product", true);
 		this.onPost = onPost;
 		initUI();
-		setSize(420, 420);
+		setSize(480, 520); // slightly larger for image chooser
 		setLocationRelativeTo(owner);
 	}
 
@@ -53,6 +56,49 @@ public class PostProduct extends JDialog {
 		descArea.setWrapStyleWord(true);
 		panel.add(new JScrollPane(descArea), gbc);
 
+		// NEW: Image chooser
+		gbc.gridx = 0; gbc.gridy++;
+		JLabel imageLbl = new JLabel("Image:");
+		panel.add(imageLbl, gbc);
+		gbc.gridx = 1;
+		JPanel imgChooserPanel = new JPanel(new BorderLayout(6, 6));
+		JLabel chosenPathLabel = new JLabel("No image selected");
+		JButton chooseBtn = new JButton("Choose Image...");
+		imgChooserPanel.add(chosenPathLabel, BorderLayout.CENTER);
+		imgChooserPanel.add(chooseBtn, BorderLayout.EAST);
+		panel.add(imgChooserPanel, gbc);
+
+		final String[] selectedRelativePath = new String[1];
+
+		chooseBtn.addActionListener(ev -> {
+			JFileChooser fc = new JFileChooser();
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			int ret = fc.showOpenDialog(PostProduct.this);
+			if (ret == JFileChooser.APPROVE_OPTION) {
+				File sel = fc.getSelectedFile();
+				// copy to project images folder
+				try {
+					Path imagesDir = Paths.get(System.getProperty("user.dir"), "images");
+					if (!Files.exists(imagesDir)) Files.createDirectories(imagesDir);
+					String baseName = sel.getName();
+					Path dest = imagesDir.resolve(baseName);
+					// if exists, append timestamp to avoid overwrite
+					if (Files.exists(dest)) {
+						String name = baseName;
+						int dot = name.lastIndexOf('.');
+						String prefix = (dot > 0) ? name.substring(0, dot) : name;
+						String ext = (dot > 0) ? name.substring(dot) : "";
+						dest = imagesDir.resolve(prefix + "_" + System.currentTimeMillis() + ext);
+					}
+					Files.copy(sel.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);
+					selectedRelativePath[0] = "images/" + dest.getFileName().toString();
+					chosenPathLabel.setText(selectedRelativePath[0]);
+				} catch (IOException ex) {
+					JOptionPane.showMessageDialog(PostProduct.this, "Failed to copy image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+
 		gbc.gridx = 0; gbc.gridy++;
 		gbc.gridwidth = 2;
 		gbc.anchor = GridBagConstraints.CENTER;
@@ -78,6 +124,9 @@ public class PostProduct extends JDialog {
 			}
 
 			Product p = new Product(name, desc, category, price);
+			// attach image path if chosen
+			if (selectedRelativePath[0] != null) p.setImagePath(selectedRelativePath[0]);
+
 			ItemDAO.addProduct(p);
 
 			if (onPost != null) {

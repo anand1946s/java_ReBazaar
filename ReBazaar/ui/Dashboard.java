@@ -5,6 +5,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -339,7 +340,7 @@ public class Dashboard extends JFrame {
         return card;
     }
 
-    // NEW: render a Product object as a card (shows price and description)
+    // NEW: display image if available
     private JPanel createProductCard(Product p) {
         JPanel card = new JPanel(new BorderLayout(8, 8));
         card.setBackground(Color.WHITE);
@@ -352,8 +353,29 @@ public class Dashboard extends JFrame {
         JPanel imagePanel = new JPanel(new GridBagLayout());
         imagePanel.setPreferredSize(new Dimension(200, 180));
         imagePanel.setBackground(COLOR_TEXT_FIELD_BG);
-        JLabel imageLabel = new JLabel("<html><center>Product<br>Image</center></html>");
-        imageLabel.setForeground(COLOR_TEXT_SECONDARY);
+
+        JLabel imageLabel;
+        try {
+            String imgPath = p.getImagePath();
+            if (imgPath != null && !imgPath.trim().isEmpty()) {
+                File f = new File(System.getProperty("user.dir"), imgPath);
+                if (f.exists()) {
+                    ImageIcon raw = new ImageIcon(f.getAbsolutePath());
+                    Image scaled = raw.getImage().getScaledInstance(200, 180, Image.SCALE_SMOOTH);
+                    imageLabel = new JLabel(new ImageIcon(scaled));
+                } else {
+                    imageLabel = new JLabel("<html><center>Image<br>not found</center></html>");
+                    imageLabel.setForeground(COLOR_TEXT_SECONDARY);
+                }
+            } else {
+                imageLabel = new JLabel("<html><center>Product<br>Image</center></html>");
+                imageLabel.setForeground(COLOR_TEXT_SECONDARY);
+            }
+        } catch (Exception ex) {
+            imageLabel = new JLabel("<html><center>Product<br>Image</center></html>");
+            imageLabel.setForeground(COLOR_TEXT_SECONDARY);
+        }
+
         imagePanel.add(imageLabel);
         card.add(imagePanel, BorderLayout.CENTER);
 

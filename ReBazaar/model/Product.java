@@ -10,6 +10,7 @@ public class Product implements Serializable {
 	private String description;
 	private String category;
 	private double price;
+	private String imagePath; // NEW: relative path, e.g. "images/abc.jpg"
 
 	public Product() {
 		// no-arg constructor for serialization/deserialization
@@ -30,6 +31,10 @@ public class Product implements Serializable {
 	public String getDescription() { return description; }
 	public String getCategory() { return category; }
 	public double getPrice() { return price; }
+
+	// NEW getter/setter for image path
+	public String getImagePath() { return imagePath; }
+	public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 
 	@Override
 	public String toString() {
