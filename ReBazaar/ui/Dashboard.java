@@ -12,7 +12,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableModel;
 import database.ItemDAO;
 import model.Product;
 
@@ -35,8 +34,7 @@ public class Dashboard extends JFrame {
     private DefaultListModel<String> searchResultsModel;
 
     private String loggedInUser;
-    private JTable postedItemsTable;
-    private DefaultTableModel postedTableModel;
+    private String currentCategory; // NEW: remember current category to refresh after posting
 
     public Dashboard(String user) {
         super("ReBazaar Dashboard");
@@ -164,9 +162,9 @@ public class Dashboard extends JFrame {
             break;
 
         case "Sell Items":
-            // Open PostProduct dialog and refresh table after posting
+            // Open PostProduct dialog and refresh view after posting
             SwingUtilities.invokeLater(() -> {
-            	PostProduct dlg = new PostProduct(this, () -> loadPostedItemsTable());
+            	PostProduct dlg = new PostProduct(this, () -> displayCategory(currentCategory == null ? "Furnitures" : currentCategory));
             	dlg.setVisible(true);
             });
             break;
@@ -192,6 +190,7 @@ public class Dashboard extends JFrame {
     }
 
     private void displayCategory(String categoryName) {
+        this.currentCategory = categoryName; // remember which category is shown
         contentPanel.removeAll();
 
         JPanel headerPanel = new JPanel(new GridBagLayout());
@@ -225,13 +224,15 @@ public class Dashboard extends JFrame {
         gbcHeader.fill = GridBagConstraints.HORIZONTAL;
         gbcHeader.anchor = GridBagConstraints.EAST;
         headerPanel.add(searchField, gbcHeader);
-        
+
         contentPanel.add(headerPanel, BorderLayout.NORTH);
 
+        // --- Build product grid including posted items ---
         JPanel productGrid = new JPanel(new GridLayout(0, 4, 25, 25));
         productGrid.setBackground(COLOR_MAIN_BG);
         productGrid.setBorder(new EmptyBorder(0, 30, 30, 30));
 
+        // static demo products
         List<String> productNames = new ArrayList<>();
         productNames.add("Wooden Bed Frame");
         productNames.add("Modern Sofa Set");
@@ -242,8 +243,15 @@ public class Dashboard extends JFrame {
         productNames.add("Bedroom Wardrobe");
         productNames.add("Outdoor Patio Set");
 
+        // add static product cards
         for (String productName : productNames) {
             productGrid.add(createProductCard(productName));
+        }
+
+        // load posted items and add as cards
+        List<Product> posted = ItemDAO.getAllProducts();
+        for (Product p : posted) {
+            productGrid.add(createProductCard(p));
         }
 
         JScrollPane scrollPane = new JScrollPane(productGrid);
@@ -251,50 +259,41 @@ public class Dashboard extends JFrame {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Add Posted Items table at bottom
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.setBorder(BorderFactory.createTitledBorder("Posted Items"));
-        postedTableModel = new DefaultTableModel(new Object[] {"ID", "Title", "Category", "Price", "Description"}, 0) {
-        	@Override
-        	public boolean isCellEditable(int row, int column) { return false; }
-        };
-        postedItemsTable = new JTable(postedTableModel);
-        bottomPanel.add(new JScrollPane(postedItemsTable), BorderLayout.CENTER);
-        bottomPanel.setPreferredSize(new Dimension(0, 200));
-        contentPanel.add(bottomPanel, BorderLayout.SOUTH);
-
         contentPanel.revalidate();
         contentPanel.repaint();
 
-        loadPostedItemsTable();
+        // build searchable list combining static and posted names
+        List<String> searchableNames = new ArrayList<>(productNames);
+        for (Product p : posted) searchableNames.add(p.getName());
 
         searchField.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { showSearchResults(searchField.getText(), productNames); }
-            public void removeUpdate(DocumentEvent e) { showSearchResults(searchField.getText(), productNames); }
+            public void insertUpdate(DocumentEvent e) { showSearchResults(searchField.getText(), searchableNames); }
+            public void removeUpdate(DocumentEvent e) { showSearchResults(searchField.getText(), searchableNames); }
             public void changedUpdate(DocumentEvent e) { }
         });
-        
+
         searchField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-           // Delay hiding to allow clicks on search results
-           SwingUtilities.invokeLater(() -> {
-             Component oppositeComponent = e.getOppositeComponent();
-        // Hide the pop-up ONLY IF the focus did not go to the pop-up window itself or one of its children
-               if (oppositeComponent != null && !SwingUtilities.isDescendingFrom(oppositeComponent, searchResultsWindow)) {
-                  hideSearchResults();
-               }
-             });
+               // Delay hiding to allow clicks on search results
+               SwingUtilities.invokeLater(() -> {
+                 Component oppositeComponent = e.getOppositeComponent();
+                   // Hide the pop-up ONLY IF the focus did not go to the pop-up window itself or one of its children
+                   if (oppositeComponent != null && !SwingUtilities.isDescendingFrom(oppositeComponent, searchResultsWindow)) {
+                      hideSearchResults();
+                   }
+                 });
             }
             @Override
             public void focusGained(FocusEvent e) {
                 if(!searchField.getText().trim().isEmpty()){
-                    showSearchResults(searchField.getText(), productNames);
+                    showSearchResults(searchField.getText(), searchableNames);
                 }
             }
         });
     }
 
+    // keep existing text-based product card
     private JPanel createProductCard(String productName) {
         JPanel card = new JPanel(new BorderLayout(8, 8));
         card.setBackground(Color.WHITE);
@@ -331,6 +330,75 @@ public class Dashboard extends JFrame {
                     BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
                     new EmptyBorder(12, 12, 12, 12)
                 ));
+            }
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JOptionPane.showMessageDialog(Dashboard.this, "Viewing: " + productName);
+            }
+        });
+        return card;
+    }
+
+    // NEW: render a Product object as a card (shows price and description)
+    private JPanel createProductCard(Product p) {
+        JPanel card = new JPanel(new BorderLayout(8, 8));
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+            new EmptyBorder(12, 12, 12, 12)
+        ));
+        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        JPanel imagePanel = new JPanel(new GridBagLayout());
+        imagePanel.setPreferredSize(new Dimension(200, 180));
+        imagePanel.setBackground(COLOR_TEXT_FIELD_BG);
+        JLabel imageLabel = new JLabel("<html><center>Product<br>Image</center></html>");
+        imageLabel.setForeground(COLOR_TEXT_SECONDARY);
+        imagePanel.add(imageLabel);
+        card.add(imagePanel, BorderLayout.CENTER);
+
+        JPanel info = new JPanel(new BorderLayout());
+        JLabel nameLabel = new JLabel(p.getName(), SwingConstants.CENTER);
+        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
+        nameLabel.setForeground(COLOR_TEXT_DARK);
+        info.add(nameLabel, BorderLayout.NORTH);
+
+        JLabel priceLabel = new JLabel("₱ " + String.format("%.2f", p.getPrice()), SwingConstants.CENTER);
+        priceLabel.setForeground(COLOR_BUTTON_GREEN);
+        info.add(priceLabel, BorderLayout.CENTER);
+
+        JTextArea desc = new JTextArea(p.getDescription());
+        desc.setLineWrap(true);
+        desc.setWrapStyleWord(true);
+        desc.setEditable(false);
+        desc.setBackground(Color.WHITE);
+        desc.setForeground(COLOR_TEXT_SECONDARY);
+        desc.setBorder(null);
+        desc.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        info.add(desc, BorderLayout.SOUTH);
+
+        card.add(info, BorderLayout.SOUTH);
+
+        card.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                card.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(COLOR_BUTTON_GREEN, 1),
+                    new EmptyBorder(12, 12, 12, 12)
+                ));
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                card.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+                    new EmptyBorder(12, 12, 12, 12)
+                ));
+            }
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JOptionPane.showMessageDialog(Dashboard.this,
+                    p.getName() + "\n\nPrice: ₱ " + String.format("%.2f", p.getPrice()) + "\n\n" + p.getDescription(),
+                    "Product Details", JOptionPane.INFORMATION_MESSAGE);
             }
         });
         return card;
@@ -389,17 +457,6 @@ public class Dashboard extends JFrame {
 
     private void hideSearchResults() {
         searchResultsWindow.setVisible(false);
-    }
-
-    private void loadPostedItemsTable() {
-    	if (postedTableModel == null) return;
-    	postedTableModel.setRowCount(0);
-    	List<Product> items = ItemDAO.getAllProducts();
-    	for (Product p : items) {
-    		postedTableModel.addRow(new Object[] {
-    			p.getId(), p.getName(), p.getCategory(), String.format("%.2f", p.getPrice()), p.getDescription()
-    		});
-    	}
     }
 
     public static void main(String[] args) {
