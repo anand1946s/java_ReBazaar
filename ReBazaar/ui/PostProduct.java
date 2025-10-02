@@ -270,5 +270,5 @@ public class PostProduct extends JDialog {
         }
     }
 }
-```
+
 
