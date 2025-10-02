@@ -20,16 +20,16 @@ public class Dashboard extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    // --- NEW UI Component Palette (Inspired by LoginPage) ---
-    private static final Color COLOR_MAIN_BG = new Color(50, 59, 67);             // Dark Greyish Blue
-    private static final Color COLOR_SIDEBAR_GREEN = new Color(25, 118, 109);       // Dark Teal
-    private static final Color COLOR_ACCENT_GREEN = new Color(70, 181, 149);        // Bright Teal for buttons/highlights
-    private static final Color COLOR_TEXT_FIELD_BG = new Color(60, 70, 80);         // Lighter Dark Grey
-    private static final Color COLOR_TEXT_LIGHT = new Color(240, 240, 240);         // Off-White for primary text
-    private static final Color COLOR_TEXT_SECONDARY_LIGHT = new Color(170, 170, 170); // Light Grey for secondary text
-    private static final Color COLOR_CARD_BG = Color.WHITE;                       // White for product cards
-    private static final Color COLOR_CARD_TEXT = new Color(50, 50, 50);             // Dark text for inside cards
-    private static final Color COLOR_CARD_TEXT_SECONDARY = new Color(150, 150, 150);  // Dim text for inside cards
+    // --- UI Colors ---
+    private static final Color COLOR_MAIN_BG = new Color(50, 59, 67);
+    private static final Color COLOR_SIDEBAR_GREEN = new Color(25, 118, 109);
+    private static final Color COLOR_ACCENT_GREEN = new Color(70, 181, 149);
+    private static final Color COLOR_TEXT_FIELD_BG = new Color(60, 70, 80);
+    private static final Color COLOR_TEXT_LIGHT = new Color(240, 240, 240);
+    private static final Color COLOR_TEXT_SECONDARY_LIGHT = new Color(170, 170, 170);
+    private static final Color COLOR_CARD_BG = Color.WHITE;
+    private static final Color COLOR_CARD_TEXT = new Color(50, 50, 50);
+    private static final Color COLOR_CARD_TEXT_SECONDARY = new Color(150, 150, 150);
 
     private JPanel contentPanel;
     private JTextField searchField;
@@ -61,17 +61,16 @@ public class Dashboard extends JFrame {
         splitPane.setDividerSize(0);
         splitPane.setEnabled(false);
 
-        // --- Left Sidebar Panel ---
+        // Sidebar
         JPanel sidebar = createSidebar();
         splitPane.setLeftComponent(sidebar);
 
-        // --- Right Content Area ---
+        // Content
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(COLOR_MAIN_BG);
         splitPane.setRightComponent(contentPanel);
 
         splitPane.setDividerLocation(250);
-
         mainContentPane.add(splitPane, BorderLayout.CENTER);
 
         initSearchResultsWindow();
@@ -82,7 +81,7 @@ public class Dashboard extends JFrame {
 
     private JPanel createSidebar() {
         JPanel sidebar = new JPanel();
-        sidebar.setBackground(COLOR_SIDEBAR_GREEN); // Set sidebar background to green
+        sidebar.setBackground(COLOR_SIDEBAR_GREEN);
         sidebar.setLayout(new GridBagLayout());
         sidebar.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
 
@@ -92,13 +91,11 @@ public class Dashboard extends JFrame {
         gbc.gridx = 0;
         gbc.weightx = 1.0;
 
-        // 1. ReBazaar Logo Panel
+        // Logo
         JPanel logoPanel = new JPanel(new BorderLayout(5, 5));
-        logoPanel.setBackground(COLOR_ACCENT_GREEN); // Use accent green for logo background
+        logoPanel.setBackground(COLOR_ACCENT_GREEN);
         logoPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         logoPanel.setPreferredSize(new Dimension(200, 120));
-        logoPanel.setMaximumSize(new Dimension(200, 120));
-        logoPanel.setMinimumSize(new Dimension(200, 120));
 
         JLabel cartIcon = new JLabel("🛒", SwingConstants.CENTER);
         cartIcon.setFont(new Font("SansSerif", Font.BOLD, 40));
@@ -114,11 +111,11 @@ public class Dashboard extends JFrame {
         gbc.insets = new Insets(0, 0, 30, 0);
         gbc.anchor = GridBagConstraints.NORTH;
         sidebar.add(logoPanel, gbc);
-        
-        // 2. Navigation Links
+
+        // Navigation
         gbc.insets = new Insets(5, 0, 5, 0);
         gbc.anchor = GridBagConstraints.WEST;
-        
+
         String[] navItems = {"Home", "Sell Items", "Messages", "Favourites", "Notifications", "Settings", "Logout"};
         for (int i = 0; i < navItems.length; i++) {
             String item = navItems[i];
@@ -138,8 +135,8 @@ public class Dashboard extends JFrame {
     private JButton createSidebarNavItem(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        button.setForeground(COLOR_TEXT_LIGHT);           // Light text
-        button.setBackground(COLOR_SIDEBAR_GREEN);      // Green background
+        button.setForeground(COLOR_TEXT_LIGHT);
+        button.setBackground(COLOR_SIDEBAR_GREEN);
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         button.setFocusPainted(false);
@@ -148,16 +145,15 @@ public class Dashboard extends JFrame {
         button.setContentAreaFilled(true);
         button.setBorderPainted(false);
 
-
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                button.setBackground(COLOR_ACCENT_GREEN.darker()); // Darker highlight on hover
+                button.setBackground(COLOR_ACCENT_GREEN.darker());
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                button.setBackground(COLOR_SIDEBAR_GREEN); // Back to normal green
+                button.setBackground(COLOR_SIDEBAR_GREEN);
             }
         });
         return button;
@@ -165,31 +161,32 @@ public class Dashboard extends JFrame {
 
     private void handleNavigation(String item) {
         switch (item) {
-        case "Home":
-            displayCategory("Furnitures");
-            break;
+            case "Home":
+                displayCategory("Furnitures");
+                break;
 
-        case "Sell Items":
-            SwingUtilities.invokeLater(() -> {
-                PostProduct dlg = new PostProduct(this, () -> displayCategory(currentCategory == null ? "Furnitures" : currentCategory));
-                dlg.setVisible(true);
-            });
-            break;
+            case "Sell Items":
+                SwingUtilities.invokeLater(() -> {
+                    PostProduct dlg = new PostProduct(this, () -> displayCategory(currentCategory == null ? "Furnitures" : currentCategory));
+                    dlg.setVisible(true);
+                });
+                break;
 
-        case "Settings":
-            SwingUtilities.invokeLater(() -> new UserProfile(loggedInUser).setVisible(true));
-            break;
+            case "Settings":
+                SwingUtilities.invokeLater(() -> new UserProfile(loggedInUser).setVisible(true));
+                break;
 
-        case "Logout":
-            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Logout", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                new LoginPage().setVisible(true);
-                dispose();
-            }
-            break;
-        default:
-            JOptionPane.showMessageDialog(this, "Navigating to " + item);
-            break;
+            case "Logout":
+                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to log out?", "Logout", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    new LoginPage().setVisible(true);
+                    dispose();
+                }
+                break;
+
+            default:
+                JOptionPane.showMessageDialog(this, "Navigating to " + item);
+                break;
         }
     }
 
@@ -204,11 +201,10 @@ public class Dashboard extends JFrame {
         GridBagConstraints gbcHeader = new GridBagConstraints();
         gbcHeader.insets = new Insets(0, 0, 0, 15);
         gbcHeader.anchor = GridBagConstraints.WEST;
-        gbcHeader.weightx = 0;
 
         JLabel categoryTitle = new JLabel(categoryName);
         categoryTitle.setFont(new Font("SansSerif", Font.BOLD, 28));
-        categoryTitle.setForeground(COLOR_TEXT_LIGHT); // Light text
+        categoryTitle.setForeground(COLOR_TEXT_LIGHT);
         gbcHeader.gridx = 0;
         gbcHeader.gridy = 0;
         headerPanel.add(categoryTitle, gbcHeader);
@@ -216,11 +212,11 @@ public class Dashboard extends JFrame {
         searchField = new JTextField(30);
         searchField.setFont(new Font("SansSerif", Font.PLAIN, 16));
         searchField.setBackground(COLOR_TEXT_FIELD_BG);
-        searchField.setForeground(COLOR_TEXT_LIGHT); // Light text
-        searchField.setCaretColor(COLOR_TEXT_LIGHT); // Light caret
+        searchField.setForeground(COLOR_TEXT_LIGHT);
+        searchField.setCaretColor(COLOR_TEXT_LIGHT);
         searchField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(COLOR_TEXT_SECONDARY_LIGHT.darker(), 1),
-            new EmptyBorder(8, 10, 8, 10)
+                BorderFactory.createLineBorder(COLOR_TEXT_SECONDARY_LIGHT.darker(), 1),
+                new EmptyBorder(8, 10, 8, 10)
         ));
 
         gbcHeader.gridx = 1;
@@ -231,26 +227,12 @@ public class Dashboard extends JFrame {
 
         contentPanel.add(headerPanel, BorderLayout.NORTH);
 
-        JPanel productGrid = new JPanel(new GridLayout(0, 4, 25, 25));
+        // Change to FlowLayout for box-like cards (not stretched)
+        JPanel productGrid = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
         productGrid.setBackground(COLOR_MAIN_BG);
-        productGrid.setBorder(new EmptyBorder(0, 30, 30, 30));
+        productGrid.setBorder(new EmptyBorder(20, 30, 30, 30));
 
-        // Static demo products
-        List<String> productNames = new ArrayList<>();
-        productNames.add("Wooden Bed Frame");
-        productNames.add("Modern Sofa Set");
-        productNames.add("Dining Table & Chairs");
-        productNames.add("Office Desk Chair");
-        productNames.add("Bookshelf Unit");
-        productNames.add("Coffee Table");
-        productNames.add("Bedroom Wardrobe");
-        productNames.add("Outdoor Patio Set");
-
-        for (String productName : productNames) {
-            productGrid.add(createProductCard(productName));
-        }
-
-        // Load posted items from DB
+        // ✅ Load only posted items from DB
         List<Product> posted = ItemDAO.getAllProducts();
         for (Product p : posted) {
             productGrid.add(createProductCard(p));
@@ -264,7 +246,8 @@ public class Dashboard extends JFrame {
         contentPanel.revalidate();
         contentPanel.repaint();
 
-        List<String> searchableNames = new ArrayList<>(productNames);
+        // ✅ Search only DB products
+        List<String> searchableNames = new ArrayList<>();
         posted.forEach(p -> searchableNames.add(p.getName()));
 
         searchField.getDocument().addDocumentListener(new DocumentListener() {
@@ -276,12 +259,12 @@ public class Dashboard extends JFrame {
         searchField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-               SwingUtilities.invokeLater(() -> {
-                   Component oppositeComponent = e.getOppositeComponent();
-                   if (oppositeComponent != null && !SwingUtilities.isDescendingFrom(oppositeComponent, searchResultsWindow)) {
-                       hideSearchResults();
-                   }
-               });
+                SwingUtilities.invokeLater(() -> {
+                    Component oppositeComponent = e.getOppositeComponent();
+                    if (oppositeComponent != null && !SwingUtilities.isDescendingFrom(oppositeComponent, searchResultsWindow)) {
+                        hideSearchResults();
+                    }
+                });
             }
             @Override
             public void focusGained(FocusEvent e) {
@@ -292,45 +275,19 @@ public class Dashboard extends JFrame {
         });
     }
 
-    // Creates card for static demo items
-    private JPanel createProductCard(String productName) {
-        JPanel card = new JPanel(new BorderLayout(8, 8));
-        card.setBackground(COLOR_CARD_BG);
-        card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-            new EmptyBorder(12, 12, 12, 12)
-        ));
-        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        JPanel imagePanel = new JPanel(new GridBagLayout());
-        imagePanel.setPreferredSize(new Dimension(200, 180));
-        imagePanel.setBackground(new Color(230, 230, 230));
-        JLabel imageLabel = new JLabel("<html><center>Product<br>Image</center></html>");
-        imageLabel.setForeground(COLOR_CARD_TEXT_SECONDARY);
-        imagePanel.add(imageLabel);
-        card.add(imagePanel, BorderLayout.CENTER);
-
-        JLabel nameLabel = new JLabel(productName, SwingConstants.CENTER);
-        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
-        nameLabel.setForeground(COLOR_CARD_TEXT);
-        card.add(nameLabel, BorderLayout.SOUTH);
-
-        card.addMouseListener(createCardMouseListener(card, productName));
-        return card;
-    }
-
-    // Creates card for items from the database
+    // ✅ Only DB products card remains
     private JPanel createProductCard(Product p) {
         JPanel card = new JPanel(new BorderLayout(8, 8));
+        card.setPreferredSize(new Dimension(220, 280));
         card.setBackground(COLOR_CARD_BG);
         card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-            new EmptyBorder(12, 12, 12, 12)
+                BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+                new EmptyBorder(12, 12, 12, 12)
         ));
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         JPanel imagePanel = new JPanel(new GridBagLayout());
-        imagePanel.setPreferredSize(new Dimension(200, 180));
+        imagePanel.setPreferredSize(new Dimension(200, 160));
         imagePanel.setBackground(new Color(230, 230, 230));
 
         JLabel imageLabel;
@@ -340,7 +297,7 @@ public class Dashboard extends JFrame {
                 File f = new File(System.getProperty("user.dir"), imgPath);
                 if (f.exists()) {
                     ImageIcon raw = new ImageIcon(f.getAbsolutePath());
-                    Image scaled = raw.getImage().getScaledInstance(200, 180, Image.SCALE_SMOOTH);
+                    Image scaled = raw.getImage().getScaledInstance(200, 160, Image.SCALE_SMOOTH);
                     imageLabel = new JLabel(new ImageIcon(scaled));
                 } else {
                     imageLabel = new JLabel("<html><center>Image<br>not found</center></html>");
@@ -360,7 +317,7 @@ public class Dashboard extends JFrame {
 
         JPanel info = new JPanel(new BorderLayout(0, 4));
         info.setOpaque(false);
-        
+
         JLabel nameLabel = new JLabel(p.getName(), SwingConstants.CENTER);
         nameLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
         nameLabel.setForeground(COLOR_CARD_TEXT);
@@ -370,42 +327,35 @@ public class Dashboard extends JFrame {
         priceLabel.setForeground(COLOR_ACCENT_GREEN);
         priceLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         info.add(priceLabel, BorderLayout.CENTER);
-        
-        card.add(info, BorderLayout.SOUTH);
 
+        card.add(info, BorderLayout.SOUTH);
         card.addMouseListener(createCardMouseListener(card, p));
         return card;
     }
-    
-    // Generic mouse listener for cards to avoid code repetition
-    private MouseAdapter createCardMouseListener(JPanel card, Object productInfo) {
+
+    private MouseAdapter createCardMouseListener(JPanel card, Product p) {
         return new MouseAdapter() {
-             @Override
-             public void mouseEntered(MouseEvent e) {
-                 card.setBorder(BorderFactory.createCompoundBorder(
-                     BorderFactory.createLineBorder(COLOR_ACCENT_GREEN, 2), // Thicker, accented border
-                     new EmptyBorder(11, 11, 11, 11)
-                 ));
-             }
-             @Override
-             public void mouseExited(MouseEvent e) {
-                 card.setBorder(BorderFactory.createCompoundBorder(
-                     BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-                     new EmptyBorder(12, 12, 12, 12)
-                 ));
-             }
-             @Override
-             public void mouseClicked(MouseEvent e) {
-                 if (productInfo instanceof Product) {
-                     Product p = (Product) productInfo;
-                     JOptionPane.showMessageDialog(Dashboard.this,
-                         p.getName() + "\n\nPrice: ₱ " + String.format("%.2f", p.getPrice()) + "\n\n" + p.getDescription(),
-                         "Product Details", JOptionPane.INFORMATION_MESSAGE);
-                 } else if (productInfo instanceof String) {
-                     JOptionPane.showMessageDialog(Dashboard.this, "Viewing: " + productInfo);
-                 }
-             }
-         };
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                card.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(COLOR_ACCENT_GREEN, 2),
+                        new EmptyBorder(11, 11, 11, 11)
+                ));
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                card.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+                        new EmptyBorder(12, 12, 12, 12)
+                ));
+            }
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JOptionPane.showMessageDialog(Dashboard.this,
+                        p.getName() + "\n\nPrice: ₱ " + String.format("%.2f", p.getPrice()) + "\n\n" + p.getDescription(),
+                        "Product Details", JOptionPane.INFORMATION_MESSAGE);
+            }
+        };
     }
 
     private void initSearchResultsWindow() {
@@ -442,20 +392,20 @@ public class Dashboard extends JFrame {
         }
 
         List<String> filteredProducts = allProducts.stream()
-            .filter(product -> product.toLowerCase().contains(query.toLowerCase()))
-            .collect(Collectors.toList());
+                .filter(product -> product.toLowerCase().contains(query.toLowerCase()))
+                .collect(Collectors.toList());
 
         if (filteredProducts.isEmpty()) {
             searchResultsModel.addElement("No results found for '" + query + "'");
         } else {
             filteredProducts.forEach(searchResultsModel::addElement);
         }
-        
+
         Point location = searchField.getLocationOnScreen();
         searchResultsWindow.setLocation(location.x, location.y + searchField.getHeight());
         int preferredHeight = Math.min(200, searchResultsModel.size() * searchResultsList.getFixedCellHeight());
         searchResultsWindow.setSize(searchField.getWidth(), preferredHeight);
-        
+
         searchResultsWindow.setVisible(true);
     }
 
