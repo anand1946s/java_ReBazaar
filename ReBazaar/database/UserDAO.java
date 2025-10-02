@@ -92,4 +92,20 @@ public class UserDAO {
 		}
 		return list;
 	}
+
+	/**
+	 * Changes the password for the given username.
+	 * Returns true if the password was updated (user existed), false if no rows were affected.
+	 * Throws SQLException on DB errors.
+	 */
+	public static boolean changePassword(String username, String newPassword) throws SQLException {
+		String sql = "UPDATE users SET password = ? WHERE username = ?";
+		try (Connection conn = DBConnection.getConnection();
+			 PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, newPassword);
+			ps.setString(2, username);
+			int updated = ps.executeUpdate();
+			return updated > 0;
+		}
+	}
 }

@@ -7,6 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.util.Arrays;
+import java.sql.SQLException;
+
+import database.UserDAO;
 
 public class UserProfile extends JFrame {
 
@@ -200,15 +203,35 @@ public class UserProfile extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 char[] newPass = newPasswordField.getPassword();
                 char[] confirmPass = confirmPasswordField.getPassword();
-                if (newPass.length == 0 || confirmPass.length == 0) {
-                    JOptionPane.showMessageDialog(UserProfile.this, "Password fields cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
-                } else if (!Arrays.equals(newPass, confirmPass)) {
-                    JOptionPane.showMessageDialog(UserProfile.this, "Passwords do not match.", "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    // Here you would add your logic to update the password in the database
-                    JOptionPane.showMessageDialog(UserProfile.this, "Password changed successfully!");
-                    newPasswordField.setText("");
-                    confirmPasswordField.setText("");
+                try {
+                    if (newPass.length == 0 || confirmPass.length == 0) {
+                        JOptionPane.showMessageDialog(UserProfile.this, "Password fields cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if (!Arrays.equals(newPass, confirmPass)) {
+                        JOptionPane.showMessageDialog(UserProfile.this, "Passwords do not match.", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        String newPasswordStr = new String(newPass);
+                        try {
+                            boolean changed = UserDAO.changePassword(loggedInUser, newPasswordStr);
+                            if (changed) {
+                                JOptionPane.showMessageDialog(UserProfile.this, "Password changed successfully!");
+                                newPasswordField.setText("");
+                                confirmPasswordField.setText("");
+                            } else {
+                                JOptionPane.showMessageDialog(UserProfile.this, "Failed to change password: user not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(UserProfile.this, "Database error while changing password.", "Error", JOptionPane.ERROR_MESSAGE);
+                        } finally {
+                            // zero-out the temporary String reference by overwriting char arrays
+                            Arrays.fill(newPass, '\0');
+                            Arrays.fill(confirmPass, '\0');
+                        }
+                    }
+                } finally {
+                    // ensure sensitive char arrays are cleared even if earlier checks failed
+                    Arrays.fill(newPass, '\0');
+                    Arrays.fill(confirmPass, '\0');
                 }
             }
         });
