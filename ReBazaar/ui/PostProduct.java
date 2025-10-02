@@ -1,16 +1,3 @@
-Of course\! I can modify the code to give the components a larger border radius, creating a softer, more modern "rounded square" look.
-
-Since Swing components don't have a simple "border-radius" property like in web design, this requires creating custom components that can paint themselves with rounded corners. I've added a few small helper classes inside your `PostProduct.java` file to handle this and then replaced the standard components (like `JTextField` and `JButton`) with these new rounded versions.
-
-I've added a `CORNER_RADIUS` variable at the top of the file so you can easily change the roundness of all components from one place.
-
------
-
-### **Updated `PostProduct.java`**
-
-Here is the complete code with the rounded components.
-
-```java
 package ui;
 
 import javax.swing.*;
@@ -284,3 +271,4 @@ public class PostProduct extends JDialog {
     }
 }
 ```
+
