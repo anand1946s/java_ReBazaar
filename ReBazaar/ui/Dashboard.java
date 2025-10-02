@@ -12,6 +12,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+import database.ItemDAO;
+import model.Product;
 
 public class Dashboard extends JFrame {
 
@@ -32,6 +35,8 @@ public class Dashboard extends JFrame {
     private DefaultListModel<String> searchResultsModel;
 
     private String loggedInUser;
+    private JTable postedItemsTable;
+    private DefaultTableModel postedTableModel;
 
     public Dashboard(String user) {
         super("ReBazaar Dashboard");
@@ -158,6 +163,14 @@ public class Dashboard extends JFrame {
             displayCategory("Furnitures");
             break;
 
+        case "Sell Items":
+            // Open PostProduct dialog and refresh table after posting
+            SwingUtilities.invokeLater(() -> {
+            	PostProduct dlg = new PostProduct(this, () -> loadPostedItemsTable());
+            	dlg.setVisible(true);
+            });
+            break;
+
         // MODIFIED PART STARTS HERE
         case "Settings":
             // This will open your new UserProfile frame without closing the dashboard
@@ -238,8 +251,22 @@ public class Dashboard extends JFrame {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
 
+        // Add Posted Items table at bottom
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBorder(BorderFactory.createTitledBorder("Posted Items"));
+        postedTableModel = new DefaultTableModel(new Object[] {"ID", "Title", "Category", "Price", "Description"}, 0) {
+        	@Override
+        	public boolean isCellEditable(int row, int column) { return false; }
+        };
+        postedItemsTable = new JTable(postedTableModel);
+        bottomPanel.add(new JScrollPane(postedItemsTable), BorderLayout.CENTER);
+        bottomPanel.setPreferredSize(new Dimension(0, 200));
+        contentPanel.add(bottomPanel, BorderLayout.SOUTH);
+
         contentPanel.revalidate();
         contentPanel.repaint();
+
+        loadPostedItemsTable();
 
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { showSearchResults(searchField.getText(), productNames); }
@@ -362,6 +389,17 @@ public class Dashboard extends JFrame {
 
     private void hideSearchResults() {
         searchResultsWindow.setVisible(false);
+    }
+
+    private void loadPostedItemsTable() {
+    	if (postedTableModel == null) return;
+    	postedTableModel.setRowCount(0);
+    	List<Product> items = ItemDAO.getAllProducts();
+    	for (Product p : items) {
+    		postedTableModel.addRow(new Object[] {
+    			p.getId(), p.getName(), p.getCategory(), String.format("%.2f", p.getPrice()), p.getDescription()
+    		});
+    	}
     }
 
     public static void main(String[] args) {
