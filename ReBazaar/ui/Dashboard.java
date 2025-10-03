@@ -1,18 +1,13 @@
 package ui;
 
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import database.ItemDAO;
 import model.Product;
 
@@ -32,14 +27,8 @@ public class Dashboard extends JFrame {
     private static final Color COLOR_CARD_TEXT_SECONDARY = new Color(150, 150, 150);
 
     private JPanel contentPanel;
-    private JTextField searchField;
-    private JWindow searchResultsWindow;
-    private JList<String> searchResultsList;
-    private DefaultListModel<String> searchResultsModel;
-
     private String loggedInUser;
     private String currentCategory;
-
     private favourites favouritesWindow;
 
     public Dashboard(String user) {
@@ -75,7 +64,6 @@ public class Dashboard extends JFrame {
         splitPane.setDividerLocation(250);
         mainContentPane.add(splitPane, BorderLayout.CENTER);
 
-        initSearchResultsWindow();
         displayCategory("Welcome to ReBazaar");
 
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -118,7 +106,8 @@ public class Dashboard extends JFrame {
         gbc.insets = new Insets(5, 0, 5, 0);
         gbc.anchor = GridBagConstraints.WEST;
 
-        String[] navItems = {"Home", "Sell Items", "Messages", "Favourites", "Notifications", "Settings", "Logout"};
+        // --- MODIFIED PART: Removed "Home" button ---
+        String[] navItems = {"Sell Items", "Favourites", "Settings", "Logout"};
         for (int i = 0; i < navItems.length; i++) {
             String item = navItems[i];
             JButton navButton = createSidebarNavItem(item);
@@ -163,10 +152,7 @@ public class Dashboard extends JFrame {
 
     private void handleNavigation(String item) {
         switch (item) {
-            case "Home":
-                displayCategory("Furnitures");
-                break;
-
+            // --- MODIFIED PART: Removed "Home" case ---
             case "Sell Items":
                 SwingUtilities.invokeLater(() -> {
                     PostProduct dlg = new PostProduct(this, loggedInUser, () -> displayCategory(currentCategory == null ? "Furnitures" : currentCategory));
@@ -221,29 +207,9 @@ public class Dashboard extends JFrame {
         gbcHeader.gridy = 0;
         headerPanel.add(categoryTitle, gbcHeader);
 
-        searchField = new JTextField(30);
-        searchField.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        searchField.setBackground(COLOR_TEXT_FIELD_BG);
-        searchField.setForeground(COLOR_TEXT_LIGHT);
-        searchField.setCaretColor(COLOR_TEXT_LIGHT);
-        searchField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_TEXT_SECONDARY_LIGHT.darker(), 1),
-                new EmptyBorder(8, 10, 8, 10)
-        ));
-
-        gbcHeader.gridx = 1;
-        gbcHeader.weightx = 1.0;
-        gbcHeader.fill = GridBagConstraints.HORIZONTAL;
-        gbcHeader.anchor = GridBagConstraints.EAST;
-        headerPanel.add(searchField, gbcHeader);
-
         contentPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // --- MODIFIED PART STARTS HERE ---
-        // Changed FlowLayout to GridLayout to enforce 5 columns per row.
         JPanel productGrid = new JPanel(new GridLayout(0, 5, 20, 20));
-        // --- MODIFIED PART ENDS HERE ---
-        
         productGrid.setBackground(COLOR_MAIN_BG);
         productGrid.setBorder(new EmptyBorder(20, 30, 30, 30));
 
@@ -259,33 +225,6 @@ public class Dashboard extends JFrame {
 
         contentPanel.revalidate();
         contentPanel.repaint();
-
-        List<String> searchableNames = new ArrayList<>();
-        posted.forEach(p -> searchableNames.add(p.getName()));
-
-        searchField.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { showSearchResults(searchField.getText(), searchableNames); }
-            public void removeUpdate(DocumentEvent e) { showSearchResults(searchField.getText(), searchableNames); }
-            public void changedUpdate(DocumentEvent e) { }
-        });
-
-        searchField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    Component oppositeComponent = e.getOppositeComponent();
-                    if (oppositeComponent != null && !SwingUtilities.isDescendingFrom(oppositeComponent, searchResultsWindow)) {
-                        hideSearchResults();
-                    }
-                });
-            }
-            @Override
-            public void focusGained(FocusEvent e) {
-                if(!searchField.getText().trim().isEmpty()){
-                    showSearchResults(searchField.getText(), searchableNames);
-                }
-            }
-        });
     }
 
     // --- Beautified Product Card ---
@@ -419,62 +358,7 @@ public class Dashboard extends JFrame {
 
         return card;
     }
-
-    private void initSearchResultsWindow() {
-        searchResultsWindow = new JWindow(this);
-        searchResultsModel = new DefaultListModel<>();
-        searchResultsList = new JList<>(searchResultsModel);
-        searchResultsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        searchResultsList.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        searchResultsList.setBackground(COLOR_CARD_BG);
-        searchResultsList.setForeground(COLOR_CARD_TEXT);
-        searchResultsList.setFixedCellHeight(28);
-
-        searchResultsList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                String selectedProduct = searchResultsList.getSelectedValue();
-                if (selectedProduct != null && !selectedProduct.startsWith("No results")) {
-                    searchField.setText(selectedProduct);
-                    JOptionPane.showMessageDialog(Dashboard.this, "Searching for: " + selectedProduct);
-                    hideSearchResults();
-                }
-            }
-        });
-
-        JScrollPane scrollPane = new JScrollPane(searchResultsList);
-        scrollPane.setBorder(BorderFactory.createLineBorder(COLOR_ACCENT_GREEN, 1));
-        searchResultsWindow.add(scrollPane);
-    }
-
-    private void showSearchResults(String query, List<String> allProducts) {
-        searchResultsModel.clear();
-        if (query.trim().isEmpty()) {
-            hideSearchResults();
-            return;
-        }
-
-        List<String> filteredProducts = allProducts.stream()
-                .filter(product -> product.toLowerCase().contains(query.toLowerCase()))
-                .collect(Collectors.toList());
-
-        if (filteredProducts.isEmpty()) {
-            searchResultsModel.addElement("No results found for '" + query + "'");
-        } else {
-            filteredProducts.forEach(searchResultsModel::addElement);
-        }
-
-        Point location = searchField.getLocationOnScreen();
-        searchResultsWindow.setLocation(location.x, location.y + searchField.getHeight());
-        int preferredHeight = Math.min(200, searchResultsModel.size() * searchResultsList.getFixedCellHeight());
-        searchResultsWindow.setSize(searchField.getWidth(), preferredHeight);
-
-        searchResultsWindow.setVisible(true);
-    }
-
-    private void hideSearchResults() {
-        searchResultsWindow.setVisible(false);
-    }
-
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Dashboard("GuestUser").setVisible(true));
     }
