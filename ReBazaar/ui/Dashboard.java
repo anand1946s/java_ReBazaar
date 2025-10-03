@@ -76,7 +76,7 @@ public class Dashboard extends JFrame {
         mainContentPane.add(splitPane, BorderLayout.CENTER);
 
         initSearchResultsWindow();
-        displayCategory("Furnitures");
+        displayCategory("Welcome to ReBazaar");
 
         setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
@@ -239,7 +239,11 @@ public class Dashboard extends JFrame {
 
         contentPanel.add(headerPanel, BorderLayout.NORTH);
 
-        JPanel productGrid = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
+        // --- MODIFIED PART STARTS HERE ---
+        // Changed FlowLayout to GridLayout to enforce 5 columns per row.
+        JPanel productGrid = new JPanel(new GridLayout(0, 5, 20, 20));
+        // --- MODIFIED PART ENDS HERE ---
+        
         productGrid.setBackground(COLOR_MAIN_BG);
         productGrid.setBorder(new EmptyBorder(20, 30, 30, 30));
 
