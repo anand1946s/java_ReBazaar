@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import database.ItemDAO;
-import database.UserDAO; // <-- new import
+import database.UserDAO;
 import model.Product;
 
 public class PostProduct extends JDialog {
@@ -24,11 +24,8 @@ public class PostProduct extends JDialog {
     private static final int CORNER_RADIUS = 15; // You can change this value
 
     private Runnable onPost;
-
-    // new: logged-in username
     private String loggedInUser;
 
-    // update constructor to accept username
     public PostProduct(Frame owner, String username, Runnable onPost) {
         super(owner, "Post Product", true);
         this.onPost = onPost;
@@ -55,41 +52,28 @@ public class PostProduct extends JDialog {
         panel.add(nameLbl, gbc);
 
         gbc.gridx = 1;
-        // Use the new RoundedJTextField
         JTextField nameField = new RoundedJTextField();
         panel.add(nameField, gbc);
 
-        // --- Category ---
-        gbc.gridx = 0; gbc.gridy++;
-        JLabel categoryLbl = new JLabel("Category:");
-        categoryLbl.setForeground(COLOR_TEXT_LIGHT);
-        panel.add(categoryLbl, gbc);
-
-        gbc.gridx = 1;
-        JComboBox<String> categoryBox = new JComboBox<>(new String[] {"Furnitures", "Electronics", "Books", "Clothing", "Other"});
-        categoryBox.setBackground(COLOR_TEXT_FIELD_BG);
-        categoryBox.setForeground(COLOR_TEXT_LIGHT);
-        panel.add(categoryBox, gbc);
+        // --- MODIFIED: Category UI Removed ---
 
         // --- Price ---
-        gbc.gridx = 0; gbc.gridy++;
+        gbc.gridx = 0; gbc.gridy++; // gridy is now 1
         JLabel priceLbl = new JLabel("Price:");
         priceLbl.setForeground(COLOR_TEXT_LIGHT);
         panel.add(priceLbl, gbc);
 
         gbc.gridx = 1;
-        // Use the new RoundedJTextField
         JTextField priceField = new RoundedJTextField();
         panel.add(priceField, gbc);
 
         // --- Description ---
-        gbc.gridx = 0; gbc.gridy++;
+        gbc.gridx = 0; gbc.gridy++; // gridy is now 2
         JLabel descLbl = new JLabel("Description:");
         descLbl.setForeground(COLOR_TEXT_LIGHT);
         panel.add(descLbl, gbc);
 
         gbc.gridx = 1;
-        // Use a RoundedPanel to contain the JTextArea
         RoundedPanel descPanel = new RoundedPanel(new BorderLayout());
         JTextArea descArea = new JTextArea(6, 20);
         descArea.setLineWrap(true);
@@ -101,9 +85,8 @@ public class PostProduct extends JDialog {
         descPanel.add(descArea);
         panel.add(descPanel, gbc);
 
-
         // --- Image Chooser ---
-        gbc.gridx = 0; gbc.gridy++;
+        gbc.gridx = 0; gbc.gridy++; // gridy is now 3
         JLabel imageLbl = new JLabel("Image:");
         imageLbl.setForeground(COLOR_TEXT_LIGHT);
         panel.add(imageLbl, gbc);
@@ -113,7 +96,6 @@ public class PostProduct extends JDialog {
         imgChooserPanel.setOpaque(false);
         JLabel chosenPathLabel = new JLabel("No image selected");
         chosenPathLabel.setForeground(COLOR_TEXT_SECONDARY_LIGHT);
-        // Use the new RoundedJButton
         JButton chooseBtn = new RoundedJButton("Choose...");
         styleButton(chooseBtn, false);
 
@@ -149,17 +131,16 @@ public class PostProduct extends JDialog {
         });
 
         // --- Post Button ---
-        gbc.gridx = 0; gbc.gridy++;
+        gbc.gridx = 0; gbc.gridy++; // gridy is now 4
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        // Use the new RoundedJButton
         JButton postBtn = new RoundedJButton("Post Product");
         styleButton(postBtn, true);
         panel.add(postBtn, gbc);
 
         postBtn.addActionListener((ActionEvent e) -> {
             String name = nameField.getText().trim();
-            String category = (String) categoryBox.getSelectedItem();
+            // --- MODIFIED: Removed category variable ---
             String desc = descArea.getText().trim();
             String priceText = priceField.getText().trim();
 
@@ -175,15 +156,14 @@ public class PostProduct extends JDialog {
                 return;
             }
 
-            // fetch contact from DB (may be null)
             String contact = UserDAO.getContact(loggedInUser);
             String sellerInfo = "\n\nSeller: " + (loggedInUser != null ? loggedInUser : "Unknown");
             if (contact != null && !contact.trim().isEmpty()) {
                 sellerInfo += "\nContact: " + contact.trim();
             }
 
-            // create product with seller info appended to description
-            Product p = new Product(name, desc + sellerInfo, category, price);
+            // --- MODIFIED: Set a default category of "Other" ---
+            Product p = new Product(name, desc + sellerInfo, "Other", price);
             if (selectedRelativePath[0] != null) p.setImagePath(selectedRelativePath[0]);
 
             ItemDAO.addProduct(p);
@@ -197,18 +177,17 @@ public class PostProduct extends JDialog {
 
     private void styleButton(JButton button, boolean isPrimary) {
         if (isPrimary) {
-             button.setBackground(COLOR_ACCENT_GREEN);
-             button.setForeground(Color.WHITE);
+            button.setBackground(COLOR_ACCENT_GREEN);
+            button.setForeground(Color.WHITE);
         } else {
-             button.setBackground(COLOR_TEXT_FIELD_BG);
-             button.setForeground(COLOR_TEXT_LIGHT);
+            button.setBackground(COLOR_TEXT_FIELD_BG);
+            button.setForeground(COLOR_TEXT_LIGHT);
         }
         button.setFont(new Font("SansSerif", Font.BOLD, 12));
     }
     
     // --- HELPER CLASSES FOR ROUNDED COMPONENTS ---
 
-    // A custom JPanel that paints a rounded background
     private static class RoundedPanel extends JPanel {
         public RoundedPanel(LayoutManager layout) {
             super(layout);
@@ -227,40 +206,36 @@ public class PostProduct extends JDialog {
         }
     }
 
-    // A custom JTextField with a rounded border
     private static class RoundedJTextField extends JTextField {
         public RoundedJTextField() {
             super();
-            setOpaque(false); // Make the component transparent
-            setBackground(new Color(0,0,0,0)); // Transparent background
+            setOpaque(false);
+            setBackground(new Color(0,0,0,0));
             setForeground(COLOR_TEXT_LIGHT);
             setCaretColor(COLOR_TEXT_LIGHT);
-            setBorder(new EmptyBorder(5, 8, 5, 8)); // Padding
+            setBorder(new EmptyBorder(5, 8, 5, 8));
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            // Paint background
             g2.setColor(COLOR_TEXT_FIELD_BG);
             g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
-            // Paint the text on top
             super.paintComponent(g);
             g2.dispose();
         }
         
         @Override
         protected void paintBorder(Graphics g) {
-             Graphics2D g2 = (Graphics2D) g.create();
-             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-             g2.setColor(COLOR_TEXT_SECONDARY_LIGHT.darker());
-             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
-             g2.dispose();
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(COLOR_TEXT_SECONDARY_LIGHT.darker());
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
+            g2.dispose();
         }
     }
 
-    // A custom JButton with rounded corners
     private static class RoundedJButton extends JButton {
         public RoundedJButton(String text) {
             super(text);
@@ -275,14 +250,10 @@ public class PostProduct extends JDialog {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            // Use the button's background color for the rounded rectangle
             g2.setColor(getBackground());
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), CORNER_RADIUS, CORNER_RADIUS);
-            // Paint the button's text and icon
             super.paintComponent(g);
             g2.dispose();
         }
     }
 }
-
-
