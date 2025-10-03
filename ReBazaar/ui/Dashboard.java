@@ -337,30 +337,49 @@ public class Dashboard extends JFrame {
         infoPanel.add(nameLabel, BorderLayout.NORTH);
         infoPanel.add(priceLabel, BorderLayout.CENTER);
 
-        // Favourite button
-        JButton favBtn = new JButton("♥");
-        favBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
-        favBtn.setBackground(COLOR_ACCENT_GREEN);
-        favBtn.setForeground(Color.WHITE);
+        // Favourite star button (toggle)
+        boolean isFav = ItemDAO.isFavourite(p.getId());
+        String starChar = isFav ? "★" : "☆";
+        JButton favBtn = new JButton(starChar);
+        favBtn.setFont(new Font("SansSerif", Font.BOLD, 18));
+        favBtn.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
         favBtn.setFocusPainted(false);
         favBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        favBtn.setOpaque(true);
-        favBtn.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        favBtn.setContentAreaFilled(false);
+        favBtn.setOpaque(false);
+        favBtn.setToolTipText(isFav ? "Remove from favourites" : "Add to favourites");
+        favBtn.setForeground(isFav ? new Color(255, 215, 0) : COLOR_TEXT_LIGHT); // gold when favourited
 
         favBtn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                favBtn.setBackground(COLOR_ACCENT_GREEN.darker());
+                // subtle hover: brighten if not fav, or slightly darker if fav
+                if (ItemDAO.isFavourite(p.getId())) {
+                    favBtn.setForeground(new Color(230, 190, 0));
+                } else {
+                    favBtn.setForeground(COLOR_ACCENT_GREEN);
+                }
             }
             @Override
             public void mouseExited(MouseEvent e) {
-                favBtn.setBackground(COLOR_ACCENT_GREEN);
+                favBtn.setForeground(ItemDAO.isFavourite(p.getId()) ? new Color(255, 215, 0) : COLOR_TEXT_LIGHT);
             }
         });
 
         favBtn.addActionListener(ae -> {
-            ItemDAO.addToFavourites(p.getId());
-            JOptionPane.showMessageDialog(Dashboard.this, p.getName() + " added to favourites.");
+            if (ItemDAO.isFavourite(p.getId())) {
+                ItemDAO.removeFromFavourites(p.getId());
+                favBtn.setText("☆");
+                favBtn.setToolTipText("Add to favourites");
+                favBtn.setForeground(COLOR_TEXT_LIGHT);
+                JOptionPane.showMessageDialog(Dashboard.this, p.getName() + " removed from favourites.");
+            } else {
+                ItemDAO.addToFavourites(p.getId());
+                favBtn.setText("★");
+                favBtn.setToolTipText("Remove from favourites");
+                favBtn.setForeground(new Color(255, 215, 0));
+                JOptionPane.showMessageDialog(Dashboard.this, p.getName() + " added to favourites.");
+            }
             if (favouritesWindow != null && favouritesWindow.isVisible()) {
                 favouritesWindow.refresh();
             }
@@ -369,7 +388,7 @@ public class Dashboard extends JFrame {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setOpaque(false);
         bottomPanel.add(infoPanel, BorderLayout.CENTER);
-        bottomPanel.add(favBtn, BorderLayout.SOUTH);
+        bottomPanel.add(favBtn, BorderLayout.EAST);
 
         card.add(bottomPanel, BorderLayout.SOUTH);
 
