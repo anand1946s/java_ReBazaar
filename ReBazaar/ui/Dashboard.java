@@ -40,6 +40,8 @@ public class Dashboard extends JFrame {
     private String loggedInUser;
     private String currentCategory;
 
+    private favourites favouritesWindow;
+
     public Dashboard(String user) {
         super("ReBazaar Dashboard");
         this.loggedInUser = user;
@@ -174,7 +176,11 @@ public class Dashboard extends JFrame {
 
             case "Favourites":
                 SwingUtilities.invokeLater(() -> {
-                    new favourites().setVisible(true);
+                    if (favouritesWindow == null || !favouritesWindow.isDisplayable()) {
+                        favouritesWindow = new favourites();
+                    }
+                    favouritesWindow.setVisible(true);
+                    favouritesWindow.refresh();
                 });
                 break;
 
@@ -233,12 +239,10 @@ public class Dashboard extends JFrame {
 
         contentPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // Change to FlowLayout for box-like cards (not stretched)
         JPanel productGrid = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
         productGrid.setBackground(COLOR_MAIN_BG);
         productGrid.setBorder(new EmptyBorder(20, 30, 30, 30));
 
-        // ✅ Load only posted items from DB
         List<Product> posted = ItemDAO.getAllProducts();
         for (Product p : posted) {
             productGrid.add(createProductCard(p));
@@ -252,7 +256,6 @@ public class Dashboard extends JFrame {
         contentPanel.revalidate();
         contentPanel.repaint();
 
-        // ✅ Search only DB products
         List<String> searchableNames = new ArrayList<>();
         posted.forEach(p -> searchableNames.add(p.getName()));
 
@@ -281,20 +284,19 @@ public class Dashboard extends JFrame {
         });
     }
 
-    // ✅ Only DB products card remains
+    // --- Beautified Product Card ---
     private JPanel createProductCard(Product p) {
         JPanel card = new JPanel(new BorderLayout(8, 8));
-        card.setPreferredSize(new Dimension(220, 280));
+        card.setPreferredSize(new Dimension(220, 300));
         card.setBackground(COLOR_CARD_BG);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-                new EmptyBorder(12, 12, 12, 12)
-        ));
+        card.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+        // Image panel
         JPanel imagePanel = new JPanel(new GridBagLayout());
         imagePanel.setPreferredSize(new Dimension(200, 160));
-        imagePanel.setBackground(new Color(230, 230, 230));
+        imagePanel.setBackground(new Color(240, 240, 240));
+        imagePanel.setBorder(BorderFactory.createLineBorder(new Color(220,220,220), 1));
 
         JLabel imageLabel;
         try {
@@ -306,54 +308,83 @@ public class Dashboard extends JFrame {
                     Image scaled = raw.getImage().getScaledInstance(200, 160, Image.SCALE_SMOOTH);
                     imageLabel = new JLabel(new ImageIcon(scaled));
                 } else {
-                    imageLabel = new JLabel("<html><center>Image<br>not found</center></html>");
+                    imageLabel = new JLabel("No Image", SwingConstants.CENTER);
                     imageLabel.setForeground(COLOR_CARD_TEXT_SECONDARY);
                 }
             } else {
-                imageLabel = new JLabel("<html><center>Product<br>Image</center></html>");
+                imageLabel = new JLabel("Product", SwingConstants.CENTER);
                 imageLabel.setForeground(COLOR_CARD_TEXT_SECONDARY);
             }
         } catch (Exception ex) {
-            imageLabel = new JLabel("<html><center>Image Error</center></html>");
+            imageLabel = new JLabel("Image Error", SwingConstants.CENTER);
             imageLabel.setForeground(COLOR_CARD_TEXT_SECONDARY);
         }
-
         imagePanel.add(imageLabel);
         card.add(imagePanel, BorderLayout.CENTER);
 
-        JPanel info = new JPanel(new BorderLayout(0, 4));
-        info.setOpaque(false);
+        // Info
+        JPanel infoPanel = new JPanel(new BorderLayout(0, 6));
+        infoPanel.setOpaque(false);
 
         JLabel nameLabel = new JLabel(p.getName(), SwingConstants.CENTER);
-        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
+        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         nameLabel.setForeground(COLOR_CARD_TEXT);
-        info.add(nameLabel, BorderLayout.NORTH);
 
         JLabel priceLabel = new JLabel("₱ " + String.format("%.2f", p.getPrice()), SwingConstants.CENTER);
         priceLabel.setForeground(COLOR_ACCENT_GREEN);
-        priceLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-        info.add(priceLabel, BorderLayout.CENTER);
+        priceLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
 
-        card.add(info, BorderLayout.SOUTH);
-        card.addMouseListener(createCardMouseListener(card, p));
-        return card;
-    }
+        infoPanel.add(nameLabel, BorderLayout.NORTH);
+        infoPanel.add(priceLabel, BorderLayout.CENTER);
 
-    private MouseAdapter createCardMouseListener(JPanel card, Product p) {
-        return new MouseAdapter() {
+        // Favourite button
+        JButton favBtn = new JButton("♥");
+        favBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        favBtn.setBackground(COLOR_ACCENT_GREEN);
+        favBtn.setForeground(Color.WHITE);
+        favBtn.setFocusPainted(false);
+        favBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        favBtn.setOpaque(true);
+        favBtn.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+
+        favBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                favBtn.setBackground(COLOR_ACCENT_GREEN.darker());
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                favBtn.setBackground(COLOR_ACCENT_GREEN);
+            }
+        });
+
+        favBtn.addActionListener(ae -> {
+            ItemDAO.addToFavourites(p.getId());
+            JOptionPane.showMessageDialog(Dashboard.this, p.getName() + " added to favourites.");
+            if (favouritesWindow != null && favouritesWindow.isVisible()) {
+                favouritesWindow.refresh();
+            }
+        });
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(infoPanel, BorderLayout.CENTER);
+        bottomPanel.add(favBtn, BorderLayout.SOUTH);
+
+        card.add(bottomPanel, BorderLayout.SOUTH);
+
+        // hover glow
+        card.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 card.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(COLOR_ACCENT_GREEN, 2),
-                        new EmptyBorder(11, 11, 11, 11)
+                        new EmptyBorder(10, 10, 10, 10)
                 ));
             }
             @Override
             public void mouseExited(MouseEvent e) {
-                card.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-                        new EmptyBorder(12, 12, 12, 12)
-                ));
+                card.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
             }
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -361,7 +392,9 @@ public class Dashboard extends JFrame {
                         p.getName() + "\n\nPrice: ₱ " + String.format("%.2f", p.getPrice()) + "\n\n" + p.getDescription(),
                         "Product Details", JOptionPane.INFORMATION_MESSAGE);
             }
-        };
+        });
+
+        return card;
     }
 
     private void initSearchResultsWindow() {

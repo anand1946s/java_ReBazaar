@@ -10,8 +10,13 @@ public class ItemDAO {
     private static final AtomicInteger idCounter = new AtomicInteger(1);
     private static final File DATA_FILE = new File(System.getProperty("user.dir"), "data/items.dat");
 
+    // --- favourites persistence ---
+    private static final File FAV_FILE = new File(System.getProperty("user.dir"), "data/favs.dat");
+    private static final Set<Integer> favouriteIds = new HashSet<>();
+
     static {
         loadFromFile();
+        loadFavouritesFromFile(); // load favourites after items
     }
 
     public static synchronized void addProduct(Product p) {
@@ -23,6 +28,28 @@ public class ItemDAO {
 
     public static synchronized List<Product> getAllProducts() {
         return new ArrayList<>(items);
+    }
+
+    // --- favourites API ---
+    public static synchronized void addToFavourites(int productId) {
+        if (productId <= 0) return;
+        if (favouriteIds.add(productId)) saveFavouritesToFile();
+    }
+
+    public static synchronized void removeFromFavourites(int productId) {
+        if (favouriteIds.remove(productId)) saveFavouritesToFile();
+    }
+
+    public static synchronized boolean isFavourite(int productId) {
+        return favouriteIds.contains(productId);
+    }
+
+    public static synchronized List<Product> getFavouriteProducts() {
+        List<Product> out = new ArrayList<>();
+        for (Product p : items) {
+            if (favouriteIds.contains(p.getId())) out.add(p);
+        }
+        return out;
     }
 
     private static void loadFromFile() {
@@ -50,6 +77,35 @@ public class ItemDAO {
             if (parent != null && !parent.exists()) parent.mkdirs();
             try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(DATA_FILE)))) {
                 oos.writeObject(items);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // --- favourites persistence helpers ---
+    private static void loadFavouritesFromFile() {
+        if (!FAV_FILE.exists()) return;
+        try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(FAV_FILE)))) {
+            Object obj = ois.readObject();
+            if (obj instanceof Set) {
+                @SuppressWarnings("unchecked")
+                Set<Integer> loaded = (Set<Integer>) obj;
+                favouriteIds.clear();
+                favouriteIds.addAll(loaded);
+            }
+        } catch (Exception e) {
+            // ignore and start with empty favourites
+            e.printStackTrace();
+        }
+    }
+
+    private static void saveFavouritesToFile() {
+        try {
+            File parent = FAV_FILE.getParentFile();
+            if (parent != null && !parent.exists()) parent.mkdirs();
+            try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(FAV_FILE)))) {
+                oos.writeObject(new HashSet<>(favouriteIds));
             }
         } catch (IOException e) {
             e.printStackTrace();
