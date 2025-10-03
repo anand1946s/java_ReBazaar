@@ -27,6 +27,11 @@ public class UserDAO {
 					+ "password TEXT NOT NULL, "
 					+ "created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
 					+ ")");
+
+			// ensure columns for general info exist; ALTER may fail if column already exists, so ignore errors
+			try { st.executeUpdate("ALTER TABLE users ADD COLUMN first_name TEXT"); } catch (SQLException ex) { /* ignore */ }
+			try { st.executeUpdate("ALTER TABLE users ADD COLUMN last_name TEXT"); } catch (SQLException ex) { /* ignore */ }
+			try { st.executeUpdate("ALTER TABLE users ADD COLUMN contact TEXT"); } catch (SQLException ex) { /* ignore */ }
 		}
 	}
 
@@ -107,5 +112,62 @@ public class UserDAO {
 			int updated = ps.executeUpdate();
 			return updated > 0;
 		}
+	}
+
+	// --- new helpers for general info and contact ---
+
+	/**
+	 * Update first name, last name and contact for a user.
+	 * Returns true if updated (user existed).
+	 */
+	public static boolean updateGeneralInfo(String username, String firstName, String lastName, String contact) throws SQLException {
+		String sql = "UPDATE users SET first_name = ?, last_name = ?, contact = ? WHERE username = ?";
+		try (Connection conn = DBConnection.getConnection();
+			 PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, firstName);
+			ps.setString(2, lastName);
+			ps.setString(3, contact);
+			ps.setString(4, username);
+			int updated = ps.executeUpdate();
+			return updated > 0;
+		}
+	}
+
+	/**
+	 * Return contact number for username or null if not found.
+	 */
+	public static String getContact(String username) {
+		String sql = "SELECT contact FROM users WHERE username = ? LIMIT 1";
+		try (Connection conn = DBConnection.getConnection();
+			 PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, username);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) return rs.getString("contact");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * Return {first_name, last_name, contact} for username, or null if not found.
+	 */
+	public static String[] getUserInfo(String username) throws SQLException {
+		String sql = "SELECT first_name, last_name, contact FROM users WHERE username = ? LIMIT 1";
+		try (Connection conn = DBConnection.getConnection();
+			 PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, username);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					return new String[] {
+						rs.getString("first_name"),
+						rs.getString("last_name"),
+						rs.getString("contact")
+					};
+				}
+			}
+		}
+		return null;
 	}
 }

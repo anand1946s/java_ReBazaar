@@ -27,6 +27,9 @@ public class UserProfile extends JFrame {
     private JTextField usernameField;
     private JPasswordField newPasswordField, confirmPasswordField;
 
+    // new contact field
+    private JTextField contactField;
+
     public UserProfile(String user) {
         super("User Profile");
         this.loggedInUser = user;
@@ -79,6 +82,18 @@ public class UserProfile extends JFrame {
         gbc.gridy++;
         gbc.weighty = 1.0;
         mainPanel.add(Box.createVerticalGlue(), gbc);
+
+        // load existing user info (first name, last name, contact)
+        try {
+            String[] info = database.UserDAO.getUserInfo(loggedInUser);
+            if (info != null) {
+                firstNameField.setText(info[0] != null ? info[0] : "");
+                lastNameField.setText(info[1] != null ? info[1] : "");
+                contactField.setText(info[2] != null ? info[2] : "");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private JPanel createProfileHeaderPanel() {
@@ -141,12 +156,34 @@ public class UserProfile extends JFrame {
         lastNameField = createStyledTextField();
         panel.add(lastNameField, gbc);
 
+        // Contact Number (new)
+        gbc.gridx = 0; gbc.gridy = 2;
+        panel.add(createStyledLabel("Contact No."), gbc);
+        gbc.gridx = 1;
+        contactField = createStyledTextField();
+        panel.add(contactField, gbc);
+
         // Update Button
-        gbc.gridx = 1; gbc.gridy = 2;
+        gbc.gridx = 1; gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.NONE;
         JButton updateButton = createStyledButton("Update");
-        updateButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "General information updated!"));
+        updateButton.addActionListener(e -> {
+            try {
+                boolean ok = database.UserDAO.updateGeneralInfo(loggedInUser,
+                        firstNameField.getText().trim(),
+                        lastNameField.getText().trim(),
+                        contactField.getText().trim());
+                if (ok) {
+                    JOptionPane.showMessageDialog(this, "General information updated!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update general information.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Database error while updating info.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
         panel.add(updateButton, gbc);
         
         return panel;

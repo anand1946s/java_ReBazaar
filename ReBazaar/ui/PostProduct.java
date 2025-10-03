@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import database.ItemDAO;
+import database.UserDAO; // <-- new import
 import model.Product;
 
 public class PostProduct extends JDialog {
@@ -24,9 +25,14 @@ public class PostProduct extends JDialog {
 
     private Runnable onPost;
 
-    public PostProduct(Frame owner, Runnable onPost) {
+    // new: logged-in username
+    private String loggedInUser;
+
+    // update constructor to accept username
+    public PostProduct(Frame owner, String username, Runnable onPost) {
         super(owner, "Post Product", true);
         this.onPost = onPost;
+        this.loggedInUser = username;
         initUI();
         setSize(480, 520);
         setLocationRelativeTo(owner);
@@ -169,7 +175,15 @@ public class PostProduct extends JDialog {
                 return;
             }
 
-            Product p = new Product(name, desc, category, price);
+            // fetch contact from DB (may be null)
+            String contact = UserDAO.getContact(loggedInUser);
+            String sellerInfo = "\n\nSeller: " + (loggedInUser != null ? loggedInUser : "Unknown");
+            if (contact != null && !contact.trim().isEmpty()) {
+                sellerInfo += "\nContact: " + contact.trim();
+            }
+
+            // create product with seller info appended to description
+            Product p = new Product(name, desc + sellerInfo, category, price);
             if (selectedRelativePath[0] != null) p.setImagePath(selectedRelativePath[0]);
 
             ItemDAO.addProduct(p);

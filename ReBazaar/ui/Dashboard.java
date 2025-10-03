@@ -169,7 +169,7 @@ public class Dashboard extends JFrame {
 
             case "Sell Items":
                 SwingUtilities.invokeLater(() -> {
-                    PostProduct dlg = new PostProduct(this, () -> displayCategory(currentCategory == null ? "Furnitures" : currentCategory));
+                    PostProduct dlg = new PostProduct(this, loggedInUser, () -> displayCategory(currentCategory == null ? "Furnitures" : currentCategory));
                     dlg.setVisible(true);
                 });
                 break;
