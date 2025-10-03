@@ -172,6 +172,12 @@ public class Dashboard extends JFrame {
                 });
                 break;
 
+            case "Favourites":
+                SwingUtilities.invokeLater(() -> {
+                    new favourites().setVisible(true);
+                });
+                break;
+
             case "Settings":
                 SwingUtilities.invokeLater(() -> new UserProfile(loggedInUser).setVisible(true));
                 break;
