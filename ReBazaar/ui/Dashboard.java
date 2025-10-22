@@ -15,7 +15,7 @@ public class Dashboard extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    // --- UI Colors ---
+    
     private static final Color COLOR_MAIN_BG = new Color(50, 59, 67);
     private static final Color COLOR_SIDEBAR_GREEN = new Color(25, 118, 109);
     private static final Color COLOR_ACCENT_GREEN = new Color(70, 181, 149);
@@ -52,11 +52,11 @@ public class Dashboard extends JFrame {
         splitPane.setDividerSize(0);
         splitPane.setEnabled(false);
 
-        // Sidebar
+        
         JPanel sidebar = createSidebar();
         splitPane.setLeftComponent(sidebar);
 
-        // Content
+        
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(COLOR_MAIN_BG);
         splitPane.setRightComponent(contentPanel);
@@ -81,7 +81,7 @@ public class Dashboard extends JFrame {
         gbc.gridx = 0;
         gbc.weightx = 1.0;
 
-        // Logo
+        
         JPanel logoPanel = new JPanel(new BorderLayout(5, 5));
         logoPanel.setBackground(COLOR_ACCENT_GREEN);
         logoPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
@@ -102,11 +102,11 @@ public class Dashboard extends JFrame {
         gbc.anchor = GridBagConstraints.NORTH;
         sidebar.add(logoPanel, gbc);
 
-        // Navigation
+        
         gbc.insets = new Insets(5, 0, 5, 0);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // --- MODIFIED PART: Removed "Home" button ---
+    
         String[] navItems = {"Sell Items", "Favourites", "Settings", "Logout"};
         for (int i = 0; i < navItems.length; i++) {
             String item = navItems[i];
@@ -152,7 +152,7 @@ public class Dashboard extends JFrame {
 
     private void handleNavigation(String item) {
         switch (item) {
-            // --- MODIFIED PART: Removed "Home" case ---
+            
             case "Sell Items":
                 SwingUtilities.invokeLater(() -> {
                     PostProduct dlg = new PostProduct(this, loggedInUser, () -> displayCategory(currentCategory == null ? "Furnitures" : currentCategory));
@@ -227,7 +227,7 @@ public class Dashboard extends JFrame {
         contentPanel.repaint();
     }
 
-    // --- Beautified Product Card ---
+    
     private JPanel createProductCard(Product p) {
         JPanel card = new JPanel(new BorderLayout(8, 8));
         card.setPreferredSize(new Dimension(220, 300));
@@ -235,7 +235,7 @@ public class Dashboard extends JFrame {
         card.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Image panel
+        
         JPanel imagePanel = new JPanel(new GridBagLayout());
         imagePanel.setPreferredSize(new Dimension(200, 160));
         imagePanel.setBackground(new Color(240, 240, 240));
@@ -265,7 +265,7 @@ public class Dashboard extends JFrame {
         imagePanel.add(imageLabel);
         card.add(imagePanel, BorderLayout.CENTER);
 
-        // Info
+        
         JPanel infoPanel = new JPanel(new BorderLayout(0, 6));
         infoPanel.setOpaque(false);
 
@@ -280,7 +280,7 @@ public class Dashboard extends JFrame {
         infoPanel.add(nameLabel, BorderLayout.NORTH);
         infoPanel.add(priceLabel, BorderLayout.CENTER);
 
-        // Favourite star button (toggle)
+        
         boolean isFav = ItemDAO.isFavourite(p.getId());
         String starChar = isFav ? "★" : "☆";
         JButton favBtn = new JButton(starChar);
@@ -291,12 +291,12 @@ public class Dashboard extends JFrame {
         favBtn.setContentAreaFilled(false);
         favBtn.setOpaque(false);
         favBtn.setToolTipText(isFav ? "Remove from favourites" : "Add to favourites");
-        favBtn.setForeground(isFav ? new Color(255, 215, 0) : COLOR_TEXT_LIGHT); // gold when favourited
+        favBtn.setForeground(isFav ? new Color(255, 215, 0) : COLOR_TEXT_LIGHT); // gold colr
 
         favBtn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                // subtle hover: brighten if not fav, or slightly darker if fav
+                
                 if (ItemDAO.isFavourite(p.getId())) {
                     favBtn.setForeground(new Color(230, 190, 0));
                 } else {

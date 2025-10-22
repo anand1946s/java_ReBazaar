@@ -6,13 +6,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.RoundRectangle2D;
-import utils.Validater; // Assuming you have this package
+import utils.Validater; 
 
 public class LoginPage extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    // --- UI Component Palette ---
+    
     private static final Color COLOR_BACKGROUND = new Color(22, 160, 133);
     private static final Color COLOR_PANEL_DARK = new Color(44, 62, 80);
     private static final Color COLOR_TEXT_FIELD = new Color(52, 73, 94);
@@ -31,15 +31,15 @@ public class LoginPage extends JFrame {
     private void initUI() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(new Dimension(900, 600));
-        setLocationRelativeTo(null); // Center the frame
+        setLocationRelativeTo(null); 
         setResizable(true);
 
-        // Main background panel
+        
         JPanel backgroundPanel = new JPanel(new GridBagLayout());
         backgroundPanel.setBackground(COLOR_BACKGROUND);
         setContentPane(backgroundPanel);
 
-        // The central, dark, rounded login form
+        
         RoundedPanel formPanel = new RoundedPanel(50, COLOR_PANEL_DARK);
         formPanel.setLayout(new GridBagLayout());
         formPanel.setPreferredSize(new Dimension(380, 500));
@@ -51,9 +51,9 @@ public class LoginPage extends JFrame {
         gbc.gridy = 0;
         gbc.gridwidth = 2;
 
-        // --- Components inside the form panel ---
+        
 
-        // 1. Profile Icon
+        
         JLabel profileIcon = new JLabel("👤");
         profileIcon.setFont(new Font("SansSerif", Font.BOLD, 50));
         profileIcon.setForeground(COLOR_TEXT_SECONDARY);
@@ -61,13 +61,13 @@ public class LoginPage extends JFrame {
         gbc.insets = new Insets(10, 15, 10, 15);
         formPanel.add(profileIcon, gbc);
         
-        // 2. Welcome Message
+        
         gbc.gridy++;
         JLabel welcomeLabel = createStyledLabel("Welcome to ReBazaar", 22, COLOR_TEXT_PRIMARY);
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         formPanel.add(welcomeLabel, gbc);
 
-        // 3. Login Title
+        
         gbc.gridy++;
         JLabel loginTitle = createStyledLabel("LOGIN", 18, COLOR_TEXT_PRIMARY);
         loginTitle.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, COLOR_BUTTON));
@@ -76,12 +76,12 @@ public class LoginPage extends JFrame {
         gbc.insets = new Insets(10, 15, 10, 15);
         formPanel.add(loginTitle, gbc);
         
-        // Reset constraints for fields
+        
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.insets = new Insets(15, 25, 5, 25);
 
-        // 4. Username Field
+        
         gbc.gridy++;
         formPanel.add(createStyledLabel("USERNAME", 12, COLOR_TEXT_SECONDARY), gbc);
         gbc.gridy++;
@@ -89,7 +89,7 @@ public class LoginPage extends JFrame {
         usernameField = createStyledTextField();
         formPanel.add(usernameField, gbc);
 
-        // 5. Password Field
+        
         gbc.gridy++;
         gbc.insets = new Insets(5, 25, 5, 25);
         formPanel.add(createStyledLabel("PASSWORD", 12, COLOR_TEXT_SECONDARY), gbc);
@@ -98,7 +98,7 @@ public class LoginPage extends JFrame {
         passwordField = createStyledPasswordField();
         formPanel.add(passwordField, gbc);
 
-        // 6. Submit (Login) and Sign Up Buttons Panel
+        
         gbc.gridy++;
         gbc.insets = new Insets(20, 25, 5, 25);
         
@@ -112,7 +112,7 @@ public class LoginPage extends JFrame {
         buttonPanel.add(signupButton);
         formPanel.add(buttonPanel, gbc);
         
-        // 7. Forgot Password Link
+    
         gbc.gridy++;
         gbc.insets = new Insets(10, 25, 15, 25);
         JLabel forgotPassword = new JLabel("Forgot Your Password?");
@@ -122,22 +122,22 @@ public class LoginPage extends JFrame {
         forgotPassword.setCursor(new Cursor(Cursor.HAND_CURSOR));
         formPanel.add(forgotPassword, gbc);
 
-        // Add the finished form panel to the background
+        
         backgroundPanel.add(formPanel, new GridBagConstraints());
         
-        // Make login button the default for 'Enter' key
+        
         getRootPane().setDefaultButton(loginButton);
 
-        // --- Action Listeners ---
+        
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String user = usernameField.getText(); 
                 String pass = new String(passwordField.getPassword());
 
-                // Validate against database
+                
                 if (Validater.login(user, pass)) {
-                    // Open dashboard and close login
+                    
                     SwingUtilities.invokeLater(() -> new Dashboard(user).setVisible(true));
                     dispose();
                 } else {
@@ -152,14 +152,14 @@ public class LoginPage extends JFrame {
         signupButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Open register page and close login
+                
                 SwingUtilities.invokeLater(() -> new RegisterPage().setVisible(true));
                 dispose();
             }
         });
     }
 
-    // --- Helper methods for creating styled components ---
+    
 
     private JLabel createStyledLabel(String text, int fontSize, Color color) {
         JLabel label = new JLabel(text);
@@ -199,7 +199,7 @@ public class LoginPage extends JFrame {
         return button;
     }
     
-    // --- Custom JPanel class for rounded corners ---
+    
 
     private static class RoundedPanel extends JPanel {
         private int cornerRadius;
@@ -228,7 +228,6 @@ public class LoginPage extends JFrame {
     }
     
     public static void main(String[] args) {
-        // Run the UI on the Event Dispatch Thread
         SwingUtilities.invokeLater(() -> new LoginPage().setVisible(true));
     }
 }

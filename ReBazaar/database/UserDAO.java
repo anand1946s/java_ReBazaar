@@ -7,13 +7,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class UserDAO {
-	// ...existing code...
+	
 
 	static {
 		try {
 			init();
 		} catch (SQLException e) {
-			// print stack for debugging; in production log appropriately
+			// debugging
 			e.printStackTrace();
 		}
 	}
@@ -28,18 +28,14 @@ public class UserDAO {
 					+ "created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
 					+ ")");
 
-			// ensure columns for general info exist; ALTER may fail if column already exists, so ignore errors
-			try { st.executeUpdate("ALTER TABLE users ADD COLUMN first_name TEXT"); } catch (SQLException ex) { /* ignore */ }
-			try { st.executeUpdate("ALTER TABLE users ADD COLUMN last_name TEXT"); } catch (SQLException ex) { /* ignore */ }
-			try { st.executeUpdate("ALTER TABLE users ADD COLUMN contact TEXT"); } catch (SQLException ex) { /* ignore */ }
+			
+			try { st.executeUpdate("ALTER TABLE users ADD COLUMN first_name TEXT"); } catch (SQLException ex) {  }
+			try { st.executeUpdate("ALTER TABLE users ADD COLUMN last_name TEXT"); } catch (SQLException ex) { }
+			try { st.executeUpdate("ALTER TABLE users ADD COLUMN contact TEXT"); } catch (SQLException ex) {  }
 		}
 	}
 
-	/**
-	 * Inserts a new user.
-	 * Returns true if inserted, false if username already exists.
-	 * Throws SQLException for unexpected DB errors.
-	 */
+	
 	public static boolean insertUser(String username, String password) throws SQLException {
 		String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
 		try (Connection conn = DBConnection.getConnection();
@@ -50,18 +46,16 @@ public class UserDAO {
 			return r > 0;
 		} catch (SQLException e) {
 			String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
-			// unique constraint -> username already exists
+			// checking for duplicates
 			if (msg.contains("unique") || msg.contains("constraint")) {
 				return false;
 			}
-			// rethrow other SQL exceptions so caller can handle/log them
+			// rethrowing exceptn
 			throw e;
 		}
 	}
 
-	/**
-	 * Verifies credentials. Returns true if a user with the given username and password exists.
-	 */
+	
 	public static boolean validateUser(String username, String password) {
 		String sql = "SELECT 1 FROM users WHERE username = ? AND password = ? LIMIT 1";
 		try (Connection conn = DBConnection.getConnection();
@@ -72,15 +66,12 @@ public class UserDAO {
 				return rs.next();
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			e.printStackTrace();//for debugin
 			return false;
 		}
 	}
 
-	/**
-	 * Returns all users as a list of String arrays: {username, password, created_at}
-	 * Throws SQLException on DB errors so callers can present useful messages.
-	 */
+	
 	public static java.util.List<String[]> getAllUsers() throws SQLException {
 		String sql = "SELECT username, password, created_at FROM users ORDER BY id";
 		java.util.List<String[]> list = new java.util.ArrayList<>();
@@ -98,11 +89,7 @@ public class UserDAO {
 		return list;
 	}
 
-	/**
-	 * Changes the password for the given username.
-	 * Returns true if the password was updated (user existed), false if no rows were affected.
-	 * Throws SQLException on DB errors.
-	 */
+	
 	public static boolean changePassword(String username, String newPassword) throws SQLException {
 		String sql = "UPDATE users SET password = ? WHERE username = ?";
 		try (Connection conn = DBConnection.getConnection();
@@ -114,12 +101,7 @@ public class UserDAO {
 		}
 	}
 
-	// --- new helpers for general info and contact ---
-
-	/**
-	 * Update first name, last name and contact for a user.
-	 * Returns true if updated (user existed).
-	 */
+	
 	public static boolean updateGeneralInfo(String username, String firstName, String lastName, String contact) throws SQLException {
 		String sql = "UPDATE users SET first_name = ?, last_name = ?, contact = ? WHERE username = ?";
 		try (Connection conn = DBConnection.getConnection();
@@ -133,9 +115,7 @@ public class UserDAO {
 		}
 	}
 
-	/**
-	 * Return contact number for username or null if not found.
-	 */
+	
 	public static String getContact(String username) {
 		String sql = "SELECT contact FROM users WHERE username = ? LIMIT 1";
 		try (Connection conn = DBConnection.getConnection();
@@ -150,9 +130,7 @@ public class UserDAO {
 		return null;
 	}
 
-	/**
-	 * Return {first_name, last_name, contact} for username, or null if not found.
-	 */
+	
 	public static String[] getUserInfo(String username) throws SQLException {
 		String sql = "SELECT first_name, last_name, contact FROM users WHERE username = ? LIMIT 1";
 		try (Connection conn = DBConnection.getConnection();

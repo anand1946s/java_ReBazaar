@@ -10,7 +10,7 @@ public class ItemDAO {
     private static final AtomicInteger idCounter = new AtomicInteger(1);
     private static final File DATA_FILE = new File(System.getProperty("user.dir"), "data/items.dat");
 
-    // --- favourites persistence ---
+    
     private static final File FAV_FILE = new File(System.getProperty("user.dir"), "data/favs.dat");
     private static final Set<Integer> favouriteIds = new HashSet<>();
 
@@ -83,7 +83,7 @@ public class ItemDAO {
         }
     }
 
-    // --- favourites persistence helpers ---
+
     private static void loadFavouritesFromFile() {
         if (!FAV_FILE.exists()) return;
         try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(FAV_FILE)))) {
@@ -95,7 +95,7 @@ public class ItemDAO {
                 favouriteIds.addAll(loaded);
             }
         } catch (Exception e) {
-            // ignore and start with empty favourites
+            
             e.printStackTrace();
         }
     }

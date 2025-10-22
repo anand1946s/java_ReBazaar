@@ -13,15 +13,15 @@ import database.UserDAO;
 import model.Product;
 
 public class PostProduct extends JDialog {
-    // --- UI Component Palette (Matching Dashboard Theme) ---
+    // same ui theme
     private static final Color COLOR_MAIN_BG = new Color(50, 59, 67);
     private static final Color COLOR_ACCENT_GREEN = new Color(70, 181, 149);
     private static final Color COLOR_TEXT_FIELD_BG = new Color(60, 70, 80);
     private static final Color COLOR_TEXT_LIGHT = new Color(240, 240, 240);
     private static final Color COLOR_TEXT_SECONDARY_LIGHT = new Color(170, 170, 170);
 
-    // --- NEW: Constant for corner radius ---
-    private static final int CORNER_RADIUS = 15; // You can change this value
+    
+    private static final int CORNER_RADIUS = 15; 
 
     private Runnable onPost;
     private String loggedInUser;
@@ -46,7 +46,7 @@ public class PostProduct extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0; gbc.gridy = 0;
 
-        // --- Title ---
+        
         JLabel nameLbl = new JLabel("Title:");
         nameLbl.setForeground(COLOR_TEXT_LIGHT);
         panel.add(nameLbl, gbc);
@@ -55,10 +55,10 @@ public class PostProduct extends JDialog {
         JTextField nameField = new RoundedJTextField();
         panel.add(nameField, gbc);
 
-        // --- MODIFIED: Category UI Removed ---
+        
 
-        // --- Price ---
-        gbc.gridx = 0; gbc.gridy++; // gridy is now 1
+        
+        gbc.gridx = 0; gbc.gridy++; 
         JLabel priceLbl = new JLabel("Price:");
         priceLbl.setForeground(COLOR_TEXT_LIGHT);
         panel.add(priceLbl, gbc);
@@ -67,8 +67,8 @@ public class PostProduct extends JDialog {
         JTextField priceField = new RoundedJTextField();
         panel.add(priceField, gbc);
 
-        // --- Description ---
-        gbc.gridx = 0; gbc.gridy++; // gridy is now 2
+        
+        gbc.gridx = 0; gbc.gridy++; 
         JLabel descLbl = new JLabel("Description:");
         descLbl.setForeground(COLOR_TEXT_LIGHT);
         panel.add(descLbl, gbc);
@@ -85,8 +85,8 @@ public class PostProduct extends JDialog {
         descPanel.add(descArea);
         panel.add(descPanel, gbc);
 
-        // --- Image Chooser ---
-        gbc.gridx = 0; gbc.gridy++; // gridy is now 3
+        
+        gbc.gridx = 0; gbc.gridy++; 
         JLabel imageLbl = new JLabel("Image:");
         imageLbl.setForeground(COLOR_TEXT_LIGHT);
         panel.add(imageLbl, gbc);
@@ -130,8 +130,8 @@ public class PostProduct extends JDialog {
             }
         });
 
-        // --- Post Button ---
-        gbc.gridx = 0; gbc.gridy++; // gridy is now 4
+        
+        gbc.gridx = 0; gbc.gridy++; 
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         JButton postBtn = new RoundedJButton("Post Product");
@@ -140,7 +140,7 @@ public class PostProduct extends JDialog {
 
         postBtn.addActionListener((ActionEvent e) -> {
             String name = nameField.getText().trim();
-            // --- MODIFIED: Removed category variable ---
+            
             String desc = descArea.getText().trim();
             String priceText = priceField.getText().trim();
 
@@ -162,7 +162,7 @@ public class PostProduct extends JDialog {
                 sellerInfo += "\nContact: " + contact.trim();
             }
 
-            // --- MODIFIED: Set a default category of "Other" ---
+            
             Product p = new Product(name, desc + sellerInfo, "Other", price);
             if (selectedRelativePath[0] != null) p.setImagePath(selectedRelativePath[0]);
 
@@ -186,7 +186,7 @@ public class PostProduct extends JDialog {
         button.setFont(new Font("SansSerif", Font.BOLD, 12));
     }
     
-    // --- HELPER CLASSES FOR ROUNDED COMPONENTS ---
+    
 
     private static class RoundedPanel extends JPanel {
         public RoundedPanel(LayoutManager layout) {

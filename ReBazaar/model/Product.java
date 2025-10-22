@@ -10,10 +10,10 @@ public class Product implements Serializable {
 	private String description;
 	private String category;
 	private double price;
-	private String imagePath; // NEW: relative path, e.g. "images/abc.jpg"
+	private String imagePath; 
 
 	public Product() {
-		// no-arg constructor for serialization/deserialization
+		
 	}
 
 	public Product(String name, String description, String category, double price) {
@@ -23,7 +23,7 @@ public class Product implements Serializable {
 		this.price = price;
 	}
 
-	// getters / setters
+
 	public int getId() { return id; }
 	public void setId(int id) { this.id = id; }
 
@@ -32,7 +32,7 @@ public class Product implements Serializable {
 	public String getCategory() { return category; }
 	public double getPrice() { return price; }
 
-	// NEW getter/setter for image path
+	
 	public String getImagePath() { return imagePath; }
 	public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 

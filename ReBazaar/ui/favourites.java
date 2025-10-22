@@ -19,7 +19,7 @@ public class favourites extends JFrame {
     private static final Color COLOR_CARD_TEXT = new Color(50, 50, 50);
     private static final Color COLOR_CARD_TEXT_SECONDARY = new Color(150, 150, 150);
 
-    // --- new fields for refresh ---
+    
     private JPanel productGrid;
 
     public favourites() {
@@ -45,7 +45,7 @@ public class favourites extends JFrame {
         productGrid.setBackground(COLOR_MAIN_BG);
         productGrid.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // load favourites
+        
         List<Product> products = ItemDAO.getFavouriteProducts();
         for (Product p : products) {
             productGrid.add(createProductCard(p));
@@ -58,7 +58,7 @@ public class favourites extends JFrame {
         setContentPane(main);
     }
 
-    // call this to refresh the displayed favourites
+    
     public void refresh() {
         SwingUtilities.invokeLater(() -> {
             productGrid.removeAll();

@@ -14,7 +14,7 @@ public class UserProfile extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    // --- MODIFIED: UI Component Palette for Dark Theme ---
+    
     private static final Color COLOR_MAIN_BG = new Color(50, 59, 67);
     private static final Color COLOR_BUTTON_GREEN = new Color(70, 181, 149);
     private static final Color COLOR_TEXT_LIGHT = new Color(240, 240, 240);
@@ -61,26 +61,26 @@ public class UserProfile extends JFrame {
         gbc.insets = new Insets(0, 0, 30, 0);
         mainPanel.add(titleLabel, gbc);
 
-        // --- Profile Header Panel ---
+        
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 20, 0);
         mainPanel.add(createProfileHeaderPanel(), gbc);
 
-        // --- General Information Panel ---
+        
         gbc.gridy++;
         mainPanel.add(createGeneralInfoPanel(), gbc);
 
-        // --- Security Panel ---
+        
         gbc.gridy++;
         gbc.insets = new Insets(20, 0, 0, 0);
         mainPanel.add(createSecurityPanel(), gbc);
 
-        // --- Spacer to push content up ---
+        
         gbc.gridy++;
         gbc.weighty = 1.0;
         mainPanel.add(Box.createVerticalGlue(), gbc);
 
-        // load existing user info
+        
         try {
             String[] info = database.UserDAO.getUserInfo(loggedInUser);
             if (info != null) {
@@ -106,11 +106,11 @@ public class UserProfile extends JFrame {
 
         JLabel nameLabel = new JLabel(loggedInUser);
         nameLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
-        nameLabel.setForeground(COLOR_TEXT_LIGHT); // Light text
+        nameLabel.setForeground(COLOR_TEXT_LIGHT); 
 
-        JLabel phoneLabel = new JLabel("+91 9847358174"); // Placeholder
+        JLabel phoneLabel = new JLabel("+91 9847358174"); 
         phoneLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        phoneLabel.setForeground(COLOR_TEXT_SECONDARY); // Secondary light text
+        phoneLabel.setForeground(COLOR_TEXT_SECONDARY); // 
 
         detailsPanel.add(nameLabel);
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -129,7 +129,7 @@ public class UserProfile extends JFrame {
                 javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                 javax.swing.border.TitledBorder.DEFAULT_POSITION,
                 new Font("SansSerif", Font.BOLD, 14),
-                COLOR_TEXT_LIGHT // Light title text
+                COLOR_TEXT_LIGHT 
         ));
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -137,28 +137,28 @@ public class UserProfile extends JFrame {
         gbc.insets = new Insets(10, 15, 10, 15);
         gbc.weightx = 1.0;
 
-        // First Name
+    
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.2;
         panel.add(createStyledLabel("First Name"), gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         firstNameField = createStyledTextField();
         panel.add(firstNameField, gbc);
 
-        // Last Name
+        
         gbc.gridx = 0; gbc.gridy = 1;
         panel.add(createStyledLabel("Last Name"), gbc);
         gbc.gridx = 1;
         lastNameField = createStyledTextField();
         panel.add(lastNameField, gbc);
 
-        // Contact Number
+        
         gbc.gridx = 0; gbc.gridy = 2;
         panel.add(createStyledLabel("Contact No."), gbc);
         gbc.gridx = 1;
         contactField = createStyledTextField();
         panel.add(contactField, gbc);
 
-        // Update Button
+        
         gbc.gridx = 1; gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.NONE;
@@ -193,7 +193,7 @@ public class UserProfile extends JFrame {
                 javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                 javax.swing.border.TitledBorder.DEFAULT_POSITION,
                 new Font("SansSerif", Font.BOLD, 14),
-                COLOR_TEXT_LIGHT // Light title text
+                COLOR_TEXT_LIGHT 
         ));
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -201,31 +201,31 @@ public class UserProfile extends JFrame {
         gbc.insets = new Insets(10, 15, 10, 15);
         gbc.weightx = 1.0;
 
-        // Username
+        
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.2;
         panel.add(createStyledLabel("Username"), gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         usernameField = createStyledTextField();
         usernameField.setText(loggedInUser);
         usernameField.setEditable(false);
-        usernameField.setBackground(new Color(70, 80, 90)); // Slightly lighter for disabled field
+        usernameField.setBackground(new Color(70, 80, 90)); 
         panel.add(usernameField, gbc);
 
-        // New Password
+        
         gbc.gridx = 0; gbc.gridy = 1;
         panel.add(createStyledLabel("New Password"), gbc);
         gbc.gridx = 1;
         newPasswordField = createStyledPasswordField();
         panel.add(newPasswordField, gbc);
 
-        // Confirm Password
+        
         gbc.gridx = 0; gbc.gridy = 2;
         panel.add(createStyledLabel("Confirm Password"), gbc);
         gbc.gridx = 1;
         confirmPasswordField = createStyledPasswordField();
         panel.add(confirmPasswordField, gbc);
 
-        // Change Password Button
+        
         gbc.gridx = 1; gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.EAST;
         gbc.fill = GridBagConstraints.NONE;
@@ -255,7 +255,7 @@ public class UserProfile extends JFrame {
                     }
                 }
             } finally {
-                // Clear sensitive char arrays
+                
                 Arrays.fill(newPass, '\0');
                 Arrays.fill(confirmPass, '\0');
             }
@@ -265,12 +265,12 @@ public class UserProfile extends JFrame {
         return panel;
     }
 
-    // --- Helper Methods for Styling Components ---
+    
 
     private JLabel createStyledLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        label.setForeground(COLOR_TEXT_LIGHT); // Light text
+        label.setForeground(COLOR_TEXT_LIGHT); 
         return label;
     }
 
@@ -311,7 +311,7 @@ public class UserProfile extends JFrame {
         return button;
     }
 
-    // --- Custom Panel to draw a circular profile picture icon ---
+    
     private static class ProfilePicturePanel extends JPanel {
         private static final long serialVersionUID = 1L;
 
@@ -326,11 +326,11 @@ public class UserProfile extends JFrame {
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // Draw dark circle background
+            
             g2d.setColor(COLOR_TEXT_FIELD_BG);
             g2d.fill(new Ellipse2D.Float(0, 0, getWidth(), getHeight()));
 
-            // Draw a simple user icon inside the circle
+            
             g2d.setColor(COLOR_MAIN_BG.brighter());
             g2d.fill(new Ellipse2D.Float(getWidth() * 0.25f, getHeight() * 0.2f, getWidth() * 0.5f, getHeight() * 0.4f)); // Head
             g2d.fill(new Ellipse2D.Float(getWidth() * 0.1f, getHeight() * 0.65f, getWidth() * 0.8f, getHeight() * 0.5f)); // Body

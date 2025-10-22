@@ -8,7 +8,7 @@ public class DBConnection {
 
     private static final String DB_URL = "jdbc:sqlite:rebazaar.db";
 
-    // Load the driver once when the class is loaded
+    
     static {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -17,7 +17,7 @@ public class DBConnection {
         }
     }
 
-    // Get a connection to the database
+    
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL);
     }

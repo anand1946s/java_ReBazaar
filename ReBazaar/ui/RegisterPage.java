@@ -13,7 +13,7 @@ public class RegisterPage extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    // --- UI Component Palette (consistent with LoginPage) ---
+    
     private static final Color COLOR_BACKGROUND = new Color(22, 160, 133);
     private static final Color COLOR_PANEL_DARK = new Color(44, 62, 80);
     private static final Color COLOR_TEXT_FIELD = new Color(52, 73, 94);
@@ -36,15 +36,15 @@ public class RegisterPage extends JFrame {
         setLocationRelativeTo(null);
         setResizable(true);
 
-        // Main background panel
+        
         JPanel backgroundPanel = new JPanel(new GridBagLayout());
         backgroundPanel.setBackground(COLOR_BACKGROUND);
         setContentPane(backgroundPanel);
 
-        // The central, dark, rounded registration form
+        
         RoundedPanel formPanel = new RoundedPanel(50, COLOR_PANEL_DARK);
         formPanel.setLayout(new GridBagLayout());
-        // Increased height slightly to accommodate the new icon and spacing
+    
         formPanel.setPreferredSize(new Dimension(380, 580)); 
         
         GridBagConstraints gbc = new GridBagConstraints();
@@ -54,34 +54,33 @@ public class RegisterPage extends JFrame {
         gbc.gridy = 0;
         gbc.gridwidth = 2;
 
-        // --- Components inside the form panel ---
         
-        // { ADDED } 1. Profile Icon (moved up)
-        JLabel profileIcon = new JLabel("👤"); // Simple emoji as icon
+        
+        JLabel profileIcon = new JLabel("👤"); 
         profileIcon.setFont(new Font("SansSerif", Font.BOLD, 50));
         profileIcon.setForeground(COLOR_TEXT_SECONDARY);
         profileIcon.setHorizontalAlignment(SwingConstants.CENTER);
-        gbc.insets = new Insets(10, 15, 10, 15); // Adjusted spacing
+        gbc.insets = new Insets(10, 15, 10, 15); 
         formPanel.add(profileIcon, gbc);
         
-        // 2. Welcome Message
+        
         gbc.gridy++;
         JLabel welcomeLabel = createStyledLabel("Welcome to ReBazaar", 22, COLOR_TEXT_PRIMARY);
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        gbc.insets = new Insets(5, 15, 10, 15); // Adjusted spacing
+        gbc.insets = new Insets(5, 15, 10, 15); 
         formPanel.add(welcomeLabel, gbc);
 
-        // 3. Title
+        
         gbc.gridy++;
         JLabel titleLabel = createStyledLabel("Create Account", 20, COLOR_TEXT_PRIMARY);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        gbc.insets = new Insets(5, 15, 20, 15); // Adjusted spacing
+        gbc.insets = new Insets(5, 15, 20, 15); 
         formPanel.add(titleLabel, gbc);
 
-        // Reset constraints for fields
+        
         gbc.insets = new Insets(10, 25, 5, 25);
 
-        // 4. Username Field
+        
         gbc.gridy++;
         formPanel.add(createStyledLabel("USERNAME", 12, COLOR_TEXT_SECONDARY), gbc);
         gbc.gridy++;
@@ -89,7 +88,7 @@ public class RegisterPage extends JFrame {
         usernameField = createStyledTextField();
         formPanel.add(usernameField, gbc);
 
-        // 5. Password Field
+        
         gbc.gridy++;
         gbc.insets = new Insets(5, 25, 5, 25);
         formPanel.add(createStyledLabel("PASSWORD", 12, COLOR_TEXT_SECONDARY), gbc);
@@ -98,7 +97,7 @@ public class RegisterPage extends JFrame {
         passwordField = createStyledPasswordField();
         formPanel.add(passwordField, gbc);
 
-        // 6. Confirm Password Field
+        
         gbc.gridy++;
         gbc.insets = new Insets(5, 25, 5, 25);
         formPanel.add(createStyledLabel("CONFIRM PASSWORD", 12, COLOR_TEXT_SECONDARY), gbc);
@@ -107,7 +106,7 @@ public class RegisterPage extends JFrame {
         confirmField = createStyledPasswordField();
         formPanel.add(confirmField, gbc);
 
-        // 7. Register and Back Buttons Panel
+        
         gbc.gridy++;
         gbc.insets = new Insets(20, 25, 20, 25);
         
@@ -121,13 +120,13 @@ public class RegisterPage extends JFrame {
         buttonPanel.add(registerButton);
         formPanel.add(buttonPanel, gbc);
         
-        // Add the finished form panel to the background
+        
         backgroundPanel.add(formPanel, new GridBagConstraints());
         
-        // Make register button the default for 'Enter' key
+        
         getRootPane().setDefaultButton(registerButton);
 
-        // --- Action Listeners (copied from your original code) ---
+        
         registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -147,7 +146,7 @@ public class RegisterPage extends JFrame {
                     boolean ok = UserDAO.insertUser(user, pass);
                     if (ok) {
                         JOptionPane.showMessageDialog(RegisterPage.this, "Signup complete!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        // return to login
+                        
                         SwingUtilities.invokeLater(() -> new LoginPage().setVisible(true));
                         dispose();
                     } else {
@@ -169,7 +168,7 @@ public class RegisterPage extends JFrame {
         });
     }
 
-    // --- Helper methods for creating styled components (reused from LoginPage) ---
+
 
     private JLabel createStyledLabel(String text, int fontSize, Color color) {
         JLabel label = new JLabel(text);
@@ -209,7 +208,7 @@ public class RegisterPage extends JFrame {
         return button;
     }
     
-    // --- Custom JPanel class for rounded corners (reused from LoginPage) ---
+    
 
     private static class RoundedPanel extends JPanel {
         private int cornerRadius;
@@ -235,7 +234,7 @@ public class RegisterPage extends JFrame {
         }
     }
 
-    // Main method for standalone testing
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new RegisterPage().setVisible(true));
     }
